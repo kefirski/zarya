@@ -92,7 +92,7 @@ venv.bak/
 .mypy_cache/
 
 # PyCharm
-.idea
+.idea/
 
 # Visual Studio
 .vscode
