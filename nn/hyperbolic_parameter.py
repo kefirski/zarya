@@ -32,7 +32,7 @@ class HParameter(torch.nn.Parameter):
             norm = torch.norm(self.data, dim=-1)
             norm.masked_fill_(norm < self.eps, self.eps)
 
-            indices = norm > self.c
+            indices = norm >= self.c
 
             if indices.any():
-                self.data[indices] *= self.c / norm[indices].unsqueeze(1)
+                self.data[indices] *= (self.c - self.eps) / norm[indices].unsqueeze(1)
