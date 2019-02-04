@@ -1,2 +1,2 @@
 # zarya
-Hyperbolic Neural Networks for Pytorch
+Hyperbolic Neural Networks for PyTorch
