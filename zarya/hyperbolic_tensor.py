@@ -41,7 +41,7 @@ class HTensor:
             raise ValueError("x: {} and y: {} found".format(self.info, other.info))
 
         return self.like(
-            tensor=self.manifold.sum(self.tensor, other.tensor, dim=self.hdim),
+            tensor=self.manifold.add(self.tensor, other.tensor, dim=self.hdim),
             project=False,
         )
 

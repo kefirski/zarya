@@ -26,20 +26,19 @@ class PoincareBall(Manifold):
             if indices.any():
                 x[indices] *= (1 / sqrt(self.c) - self.eps) / norm[indices].unsqueeze(1)
 
-    def sum(self, x, y, dim):
+    def add(self, x, y, dim):
 
         c = self.c
 
-        dot = torch.sum(x * y, dim=dim, keepdim=True)
-        x_norm_2 = torch.sum(x * x, dim=dim, keepdim=True)
-        y_norm_2 = torch.sum(y * y, dim=dim, keepdim=True)
+        xy = torch.sum(x * y, dim=dim, keepdim=True)
+        xx = torch.sum(x * x, dim=dim, keepdim=True)
+        yy = torch.sum(y * y, dim=dim, keepdim=True)
 
-        alpha = (1 + 2 * c * dot + c * y_norm_2) * x
-        betta = (1 - c * x_norm_2) * y
+        a = (1 + 2 * c * xy + c * yy) * x
+        b = (1 - c * xx) * y
+        c = 1 + 2 * c * xy + (c ** 2) * xx * yy
 
-        gamma = 1 + 2 * c * dot + (c ** 2) * x_norm_2 * y_norm_2
-
-        return (alpha + betta) / gamma
+        return (a + b) / c
 
     def __repr__(self):
         return "Poincare Ball Manifold, c = {}".format(self.c)
