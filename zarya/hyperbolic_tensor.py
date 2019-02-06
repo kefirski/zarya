@@ -66,8 +66,8 @@ class HTensor:
 
         return self.hdim
 
-        def is_transposed(self):
-            return not self.hdim == len(self.tensor.size()) - 1
+    def is_transposed(self):
+        return not self.hdim == len(self.tensor.size()) - 1
 
     def __repr__(self):
         return (
