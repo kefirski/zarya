@@ -40,17 +40,14 @@ class HTensor:
         if self.manifold != other.manifold or self.hdim != other.hdim:
             raise ValueError("x: {} and y: {} found".format(self.info, other.info))
 
-        return HTensor(
-            self.manifold.sum(self.tensor, other.tensor, dim=self.hdim),
-            self.manifold,
-            self.hdim,
+        return self.like(
+            tensor=self.manifold.sum(self.tensor, other.tensor, dim=self.hdim),
             project=False,
         )
 
     def transpose(self, dim0, dim1):
-        return HTensor(
-            self.tensor.transpose(dim0, dim1),
-            self.manifold,
+        return self.like(
+            tensor=self.tensor.transpose(dim0, dim1),
             hdim=self._transposed_hdim(dim0, dim1),
             project=False,
         )
@@ -68,6 +65,14 @@ class HTensor:
 
     def is_transposed(self):
         return not self.hdim == len(self.tensor.size()) - 1
+
+    def like(self, **kwargs):
+        return HTensor(
+            tensor=kwargs.get("tensor", self.tensor),
+            manifold=kwargs.get("manifold", self.manifold),
+            hdim=kwargs.get("hdim", self.hdim),
+            project=kwargs.get("project", True),
+        )
 
     def __repr__(self):
         return (
