@@ -1,6 +1,7 @@
 import torch
 
 import zarya.manifolds as mf
+from zarya.utils import check_view
 
 
 class HTensor:
@@ -41,16 +42,27 @@ class HTensor:
             raise ValueError("x: {} and y: {} found".format(self.info, other.info))
 
         return self.like(
-            tensor=self.manifold.add(self.tensor, other.tensor, dim=self.hdim),
-            project=False,
+            tensor=self.manifold.add(self.tensor, other.tensor, dim=self.hdim)
         )
 
     def transpose(self, dim0, dim1):
         return self.like(
             tensor=self.tensor.transpose(dim0, dim1),
             hdim=self._transposed_hdim(dim0, dim1),
-            project=False,
         )
+
+    def view(self, *new_size):
+
+        tensor = self.tensor.view(*new_size)
+
+        view_is_ok, hdim = check_view(
+            list(self.tensor.size()), list(tensor.size()), self.hdim
+        )
+
+        if not view_is_ok:
+            raise ValueError("View over HTensor should't affect hdim")
+
+        return self.like(tensor=tensor, hdim=hdim)
 
     def is_transposed(self):
         return not self.hdim == len(self.tensor.size()) - 1
@@ -71,7 +83,7 @@ class HTensor:
             tensor=kwargs.get("tensor", self.tensor),
             manifold=kwargs.get("manifold", self.manifold),
             hdim=kwargs.get("hdim", self.hdim),
-            project=kwargs.get("project", True),
+            project=kwargs.get("project", False),
         )
 
     def __repr__(self):
