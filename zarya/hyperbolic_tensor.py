@@ -79,16 +79,14 @@ class HTensor:
             project=kwargs.get("project", False),
         )
 
-    @staticmethod
-    def log(x, y):
-        if x.manifold != y.manifold or x.hdim != y.hdim:
-            raise ValueError("x: {} and y: {} found".format(x.info, y.info))
+    def log(self, y):
+        if self.manifold != y.manifold or self.hdim != y.hdim:
+            raise ValueError("x: {} and y: {} found".format(self.info, y.info))
 
-        return x.manifold.log(x.tensor, y.tensor, dim=x.hdim)
+        return self.manifold.log(self.tensor, y.tensor, dim=self.hdim)
 
-    @staticmethod
-    def exp(x, v):
-        return x.like(tensor=x.manifold.exp(x.tensor, v, dim=x.hdim))
+    def exp(self, v):
+        return self.like(tensor=self.manifold.exp(self.tensor, v, dim=self.hdim))
 
     def __add__(self, other):
 
