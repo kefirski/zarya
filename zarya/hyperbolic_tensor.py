@@ -103,11 +103,9 @@ class HTensor:
         return self.__add__(-other)
 
     def __rmul__(self, other):
-
         return self.like(tensor=self.manifold.mul(self.tensor, other, self.hdim))
 
     def __mul__(self, other):
-
         return self.like(tensor=self.manifold.mul(self.tensor, other, self.hdim))
 
     def __neg__(self):
