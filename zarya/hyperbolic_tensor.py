@@ -36,15 +36,6 @@ class HTensor:
             if is_transposed:
                 self.tensor = self.tensor.transpose(self.hdim, -1)
 
-    def __add__(self, other):
-
-        if self.manifold != other.manifold or self.hdim != other.hdim:
-            raise ValueError("x: {} and y: {} found".format(self.info, other.info))
-
-        return self.like(
-            tensor=self.manifold.add(self.tensor, other.tensor, dim=self.hdim)
-        )
-
     def transpose(self, dim0, dim1):
         return self.like(
             tensor=self.tensor.transpose(dim0, dim1),
@@ -85,6 +76,40 @@ class HTensor:
             hdim=kwargs.get("hdim", self.hdim),
             project=kwargs.get("project", False),
         )
+
+    @staticmethod
+    def log(x, y):
+        if x.manifold != y.manifold or x.hdim != y.hdim:
+            raise ValueError("x: {} and y: {} found".format(x.info, y.info))
+
+        return x.manifold.log(x.tensor, y.tensor, dim=x.hdim)
+
+    @staticmethod
+    def exp(x, v):
+        return x.like(tensor=x.manifold.exp(x.tensor, v, dim=x.hdim))
+
+    def __add__(self, other):
+
+        if self.manifold != other.manifold or self.hdim != other.hdim:
+            raise ValueError("x: {} and y: {} found".format(self.info, other.info))
+
+        return self.like(
+            tensor=self.manifold.add(self.tensor, other.tensor, dim=self.hdim)
+        )
+
+    def __sub__(self, other):
+        return self.__add__(-other)
+
+    def __rmul__(self, other):
+
+        return self.like(tensor=self.manifold.mul(self.tensor, other, self.hdim))
+
+    def __mul__(self, other):
+
+        return self.like(tensor=self.manifold.mul(self.tensor, other, self.hdim))
+
+    def __neg__(self):
+        return self.like(tensor=self.manifold.neg(self.tensor, self.hdim))
 
     def __repr__(self):
         return (
