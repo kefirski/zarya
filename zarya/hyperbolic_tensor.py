@@ -7,7 +7,9 @@ from zarya.utils import check_view
 class HTensor:
     eps = 1e-5
 
-    def __init__(self, tensor, manifold=mf.PoincareBall(), hdim=-1, project=True):
+    def __init__(
+        self, tensor, manifold=mf.PoincareBall(eps=HTensor.eps), hdim=-1, project=True
+    ):
         r"""
         Arguments:
             tensor (torch.Tensor): source tensor.
