@@ -26,5 +26,8 @@ class Manifold:
         """
         raise NotImplementedError
 
+    def __repr__(self):
+        raise NotImplementedError
+
     def __eq__(self, other):
         raise NotImplementedError
