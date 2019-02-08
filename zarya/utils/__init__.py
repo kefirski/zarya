@@ -1,2 +1,2 @@
-from .check_view import check_view
+from .check_view import _check_view
 from .math import atanh

@@ -55,14 +55,14 @@ class PoincareBall(Manifold):
         Mapping of point y from Manifold to Tangent Space at point x
         """
 
-        x_neg_plus_y = self.add(self.mul(x, -1, dim), y, dim)
-        x_neg_plus_y_norm = torch.norm(x_neg_plus_y, dim=dim, keepdim=True)
+        _sum = self.add(self.mul(x, -1, dim), y, dim)
+        _sum_norm = torch.norm(_sum, dim=dim, keepdim=True)
 
         return (
             (2 / (self.sqrt_c * self.conf_factor(x, dim, keepdim=True)))
-            * atanh(self.sqrt_c * x_neg_plus_y_norm)
-            * x_neg_plus_y
-            / x_neg_plus_y_norm
+            * atanh(self.sqrt_c * _sum_norm)
+            * _sum
+            / _sum_norm
         )
 
     def exp(self, x, v, dim):
@@ -70,14 +70,12 @@ class PoincareBall(Manifold):
         Mapping of point v from Tangent space at point x back to Manifold
         """
 
-        c_v_norm = self.sqrt_c * torch.clamp(
+        c_vv = self.sqrt_c * torch.clamp(
             torch.norm(v, dim=dim, keepdim=True), min=self.eps
         )
         return self.add(
             x,
-            torch.tanh(self.conf_factor(x, dim, keepdim=True) * c_v_norm / 2)
-            * v
-            / c_v_norm,
+            torch.tanh(self.conf_factor(x, dim, keepdim=True) * c_vv / 2) * v / c_vv,
             dim,
         )
 

@@ -1,7 +1,7 @@
 import torch
 
 import zarya.manifolds as mf
-from zarya.utils import check_view
+from zarya.utils import _check_view
 
 
 class HTensor:
@@ -48,7 +48,7 @@ class HTensor:
 
         tensor = self.tensor.view(*new_size)
 
-        view_is_ok, hdim = check_view(
+        view_is_ok, hdim = _check_view(
             list(self.tensor.size()), list(tensor.size()), self.hdim
         )
 
