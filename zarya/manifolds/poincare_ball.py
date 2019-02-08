@@ -33,6 +33,9 @@ class PoincareBall(Manifold):
     def conf_factor(self, x, dim, keepdim=False):
         return 2 / (1 - self.c * torch.sum(x * x, dim=dim, keepdim=keepdim))
 
+    def zero_conf_factor(self):
+        return 2.0
+
     def add(self, x, y, dim):
 
         c = self.c

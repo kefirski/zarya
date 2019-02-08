@@ -2,6 +2,9 @@ class Manifold:
     def proj_(self, x):
         raise NotImplementedError
 
+    def zero_conf_factor(self):
+        raise NotImplementedError
+
     def conf_factor(self, x, dim, keepdim=False):
         raise NotImplementedError
 

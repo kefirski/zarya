@@ -79,6 +79,9 @@ class HTensor:
             project=kwargs.get("project", False),
         )
 
+    def conf_factor(self, keepdim=False):
+        return self.manifold.conf_factor(self.tensor, self.hdim, keepdim=keepdim)
+
     def log(self, y):
         if self.manifold != y.manifold or self.hdim != y.hdim:
             raise ValueError("x: {} and y: {} found".format(self.info, y.info))
