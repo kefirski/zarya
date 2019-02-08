@@ -26,6 +26,9 @@ class Manifold:
         """
         raise NotImplementedError
 
+    def linear(self, x, m):
+        raise NotImplementedError
+
     def __repr__(self):
         raise NotImplementedError
 

@@ -1,8 +1,9 @@
 from math import sqrt
 
 import torch
-from zarya.utils import atanh
+
 from zarya.manifolds import Manifold
+from zarya.utils import atanh
 
 
 class PoincareBall(Manifold):
@@ -25,7 +26,9 @@ class PoincareBall(Manifold):
             indices = self.c * norm >= 1
 
             if indices.any():
-                x[indices] *= (1 / self.sqrt_c) / norm[indices].unsqueeze(1)
+                x[indices] *= ((1 / self.sqrt_c) - self.eps) / norm[indices].unsqueeze(
+                    1
+                )
 
     def conf_factor(self, x, dim, keepdim=False):
         return 2 / (1 - self.c * torch.sum(x * x, dim=dim, keepdim=keepdim))
@@ -77,6 +80,19 @@ class PoincareBall(Manifold):
             x,
             torch.tanh(self.conf_factor(x, dim, keepdim=True) * c_vv / 2) * v / c_vv,
             dim,
+        )
+
+    def linear(self, x, m):
+
+        mx = x.matmul(m.t())
+        mx_norm = torch.clamp(torch.norm(mx, dim=-1, keepdim=True), min=self.eps)
+        x_norm = torch.clamp(torch.norm(x, dim=-1, keepdim=True), min=self.eps)
+
+        return (
+            (1 / self.sqrt_c)
+            * torch.tanh(mx_norm * atanh(self.sqrt_c * x_norm) / x_norm)
+            * mx
+            / mx_norm
         )
 
     def __repr__(self):

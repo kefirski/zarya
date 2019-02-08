@@ -8,7 +8,7 @@ class HTensor:
     eps = 1e-5
 
     def __init__(
-        self, tensor, manifold=mf.PoincareBall(eps=HTensor.eps), hdim=-1, project=True
+        self, tensor, manifold=mf.PoincareBall(eps=eps), hdim=-1, project=True
     ):
         r"""
         Arguments:
@@ -69,7 +69,7 @@ class HTensor:
         return self.hdim
 
     def is_transposed(self):
-        return not self.hdim == len(self.tensor.size()) - 1
+        return not self.hdim == self.tensor.dim() - 1
 
     def like(self, **kwargs):
         return HTensor(
