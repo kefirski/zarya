@@ -88,6 +88,13 @@ class HTensor:
     def exp(self, v):
         return self.like(tensor=self.manifold.exp(self.tensor, v, dim=self.hdim))
 
+    def zero_log(self):
+        return self.manifold.zero_log(self.tensor, dim=self.hdim)
+
+    @staticmethod
+    def zero_exp(v, manifold=mf.PoincareBall(eps=eps), hdim=-1):
+        return HTensor(manifold.zero_exp(v, hdim), manifold, hdim, project=False)
+
     def __add__(self, other):
 
         if self.manifold != other.manifold or self.hdim != other.hdim:

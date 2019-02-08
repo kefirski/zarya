@@ -59,7 +59,7 @@ class PoincareBall(Manifold):
         """
 
         _sum = self.add(self.mul(x, -1, dim), y, dim)
-        _sum_norm = torch.norm(_sum, dim=dim, keepdim=True)
+        _sum_norm = torch.clamp(torch.norm(_sum, dim=dim, keepdim=True), min=self.eps)
 
         return (
             (2 / (self.sqrt_c * self.conf_factor(x, dim, keepdim=True)))
@@ -81,6 +81,24 @@ class PoincareBall(Manifold):
             torch.tanh(self.conf_factor(x, dim, keepdim=True) * c_vv / 2) * v / c_vv,
             dim,
         )
+
+    def zero_log(self, y, dim):
+        r"""
+        Mapping of point y from Manifold to Tangent Space at point 0
+        """
+
+        y_norm = torch.clamp(torch.norm(y, dim=dim, keepdim=True), min=self.eps)
+        return (1 / self.sqrt_c) * atanh(self.sqrt_c * y_norm) * y / y_norm
+
+    def zero_exp(self, v, dim):
+        r"""
+        Mapping of point v from Tangent space at point 0 back to Manifold
+        """
+
+        c_vv = self.sqrt_c * torch.clamp(
+            torch.norm(v, dim=dim, keepdim=True), min=self.eps
+        )
+        return torch.tanh(c_vv) * v / c_vv
 
     def linear(self, x, m):
 

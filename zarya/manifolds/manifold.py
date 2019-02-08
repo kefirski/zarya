@@ -22,7 +22,19 @@ class Manifold:
 
     def exp(self, x, v, dim):
         r"""
-        Mapping from Tangent space at point x of point v back to Manifold
+        Mapping of point v from Tangent space at point x back to Manifold
+        """
+        raise NotImplementedError
+
+    def zero_log(self, y, dim):
+        r"""
+        Mapping of point y from Manifold to Tangent Space at point 0
+        """
+        raise NotImplementedError
+
+    def zero_exp(self, v, dim):
+        r"""
+        Mapping from Tangent space at point 0 of point v back to Manifold
         """
         raise NotImplementedError
 
