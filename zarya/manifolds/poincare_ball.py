@@ -30,11 +30,12 @@ class PoincareBall(Manifold):
                     1
                 )
 
-    def conf_factor(self, x, dim=-1, keepdim=False):
-        return 2 / (1 - self.c * torch.sum(x * x, dim=dim, keepdim=keepdim))
-
-    def zero_conf_factor(self):
-        return 2.0
+    def conf_factor(self, x=None, dim=-1, keepdim=False):
+        return (
+            2 / (1 - self.c * torch.sum(x * x, dim=dim, keepdim=keepdim))
+            if x is not None
+            else 2.0
+        )
 
     def add(self, x, y, dim=-1):
 
@@ -106,16 +107,8 @@ class PoincareBall(Manifold):
     def parallel_transport(self, x, dim=-1, _from=None, _to=None):
         return (
             x
-            * (
-                self.conf_factor(_from, dim=dim, keepdim=True)
-                if _from is not None
-                else self.zero_conf_factor()
-            )
-            / (
-                self.conf_factor(_to, dim=dim, keepdim=True)
-                if _to is not None
-                else self.zero_conf_factor()
-            )
+            * self.conf_factor(_from, dim=dim, keepdim=True)
+            / self.conf_factor(_to, dim=dim, keepdim=True)
         )
 
     def linear(self, x, m):
