@@ -104,17 +104,22 @@ class HTensor:
             raise ValueError("x: {} and y: {} found".format(self.info, other.info))
 
         return self.like(
-            tensor=self.manifold.add(self.tensor, other.tensor, dim=self.hdim)
+            tensor=self.manifold.add(self.tensor, other.tensor, dim=self.hdim),
+            project=True,
         )
 
     def __sub__(self, other):
         return self.__add__(-other)
 
     def __rmul__(self, other):
-        return self.like(tensor=self.manifold.mul(self.tensor, other, self.hdim))
+        return self.like(
+            tensor=self.manifold.mul(self.tensor, other, self.hdim), project=True
+        )
 
     def __mul__(self, other):
-        return self.like(tensor=self.manifold.mul(self.tensor, other, self.hdim))
+        return self.like(
+            tensor=self.manifold.mul(self.tensor, other, self.hdim), project=True
+        )
 
     def __neg__(self):
         return self.like(tensor=self.manifold.neg(self.tensor, self.hdim))

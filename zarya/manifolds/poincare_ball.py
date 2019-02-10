@@ -26,9 +26,7 @@ class PoincareBall(Manifold):
             indices = self.c * norm >= 1
 
             if indices.any():
-                x[indices] *= ((1 / self.sqrt_c) - self.eps) / norm[indices].unsqueeze(
-                    1
-                )
+                x[indices] *= (1 - 2e-2) / (norm[indices].unsqueeze(1) * self.sqrt_c)
 
     def conf_factor(self, x=None, dim=-1, keepdim=False):
         return (
@@ -47,9 +45,9 @@ class PoincareBall(Manifold):
 
         a = (1 + 2 * c * xy + c * yy) * x
         b = (1 - c * xx) * y
-        c = 1 + 2 * c * xy + (c ** 2) * xx * yy
+        c = 2 * c * xy + c * c * xx * yy
 
-        return (a + b) / c
+        return (a + b) / (1 + c)
 
     def mul(self, x, r, dim=-1):
         x_norm = torch.clamp(torch.norm(x, dim=dim, keepdim=True), min=self.eps)
@@ -80,6 +78,7 @@ class PoincareBall(Manifold):
         c_vv = self.sqrt_c * torch.clamp(
             torch.norm(v, dim=dim, keepdim=True), min=self.eps
         )
+
         return self.add(
             x,
             torch.tanh(self.conf_factor(x, dim, keepdim=True) * c_vv / 2) * v / c_vv,
