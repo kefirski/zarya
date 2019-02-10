@@ -38,6 +38,14 @@ class HTensor:
             if is_transposed:
                 self.tensor = self.tensor.transpose(self.hdim, -1)
 
+    def like(self, **kwargs):
+        return HTensor(
+            tensor=kwargs.get("tensor", self.tensor),
+            manifold=kwargs.get("manifold", self.manifold),
+            hdim=kwargs.get("hdim", self.hdim),
+            project=kwargs.get("project", False),
+        )
+
     def transpose(self, dim0, dim1):
         return self.like(
             tensor=self.tensor.transpose(dim0, dim1),
@@ -71,14 +79,6 @@ class HTensor:
     def is_transposed(self):
         return not self.hdim == self.tensor.dim() - 1
 
-    def like(self, **kwargs):
-        return HTensor(
-            tensor=kwargs.get("tensor", self.tensor),
-            manifold=kwargs.get("manifold", self.manifold),
-            hdim=kwargs.get("hdim", self.hdim),
-            project=kwargs.get("project", False),
-        )
-
     def conf_factor(self, keepdim=False):
         return self.manifold.conf_factor(self.tensor, self.hdim, keepdim=keepdim)
 
@@ -95,7 +95,7 @@ class HTensor:
         return self.manifold.zero_log(self.tensor, dim=self.hdim)
 
     @staticmethod
-    def zero_exp(v, manifold=mf.PoincareBall(eps=eps), hdim=-1):
+    def zero_exp(v, manifold, hdim=-1):
         return HTensor(manifold.zero_exp(v, hdim), manifold, hdim, project=False)
 
     def __add__(self, other):

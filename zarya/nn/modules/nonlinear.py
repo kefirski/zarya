@@ -12,4 +12,5 @@ class NonLinear(nn.Module):
     def forward(self, input: HTensor):
         tangent_input = input.zero_log()
         result = self.f(tangent_input)
+
         return HTensor.zero_exp(result, input.manifold, hdim=input.hdim)

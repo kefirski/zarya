@@ -41,7 +41,16 @@ class Manifold:
         """
         raise NotImplementedError
 
+    def parallel_transport(self, x, dim=-1, _from=None, _to=None):
+        raise NotImplementedError
+
     def linear(self, x, m):
+        r"""
+        Fused composition of zero_log mapping, linear mapping and zero_exp mapping
+        """
+        raise NotImplementedError
+
+    def hyperplane(self, x, p, a):
         raise NotImplementedError
 
     def __repr__(self):

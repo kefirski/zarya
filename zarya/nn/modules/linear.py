@@ -37,8 +37,8 @@ class Linear(nn.Module):
             )
 
         result = input.like(tensor=input.manifold.linear(input.tensor, self.weight))
-        return result.exp(
-            result.manifold.zero_conf_factor()
-            * self.bias
-            / result.conf_factor(keepdim=True)
+        return (
+            result.exp(result.manifold.parallel_transport(self.bias, _to=result.tensor))
+            if self.bias is not None
+            else result
         )
