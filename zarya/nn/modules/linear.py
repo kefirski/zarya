@@ -19,7 +19,7 @@ class Linear(nn.Module):
         if bias:
             self.bias = nn.Parameter(torch.Tensor(out_features))
         else:
-            self.register_parameter("b", None)
+            self.register_parameter("bias", None)
 
         self.reset_parameters()
 

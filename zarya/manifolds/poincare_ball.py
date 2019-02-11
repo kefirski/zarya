@@ -23,10 +23,11 @@ class PoincareBall(Manifold):
             norm = torch.norm(x, dim=-1)
             norm = torch.clamp(norm, min=self.eps)
 
-            indices = self.c * norm >= 1
+            indices = sqrt(self.c) * norm >= 1 - self.eps
 
             if indices.any():
-                x[indices] *= (1 - 2e-2) / (norm[indices].unsqueeze(1) * self.sqrt_c)
+                coef = norm[indices].unsqueeze(1) * self.sqrt_c / (1 - self.eps)
+                x[indices] *= 1 / coef
 
     def conf_factor(self, x=None, dim=-1, keepdim=False):
         return (
@@ -52,7 +53,10 @@ class PoincareBall(Manifold):
     def mul(self, x, r, dim=-1):
         x_norm = torch.clamp(torch.norm(x, dim=dim, keepdim=True), min=self.eps)
         return (
-            (1 / self.sqrt_c) * torch.tanh(r * atanh(self.sqrt_c * x_norm)) * x / x_norm
+            (1 / self.sqrt_c)
+            * torch.tanh(torch.clamp(r * atanh(self.sqrt_c * x_norm), min=-15, max=15))
+            * x
+            / x_norm
         )
 
     def log(self, x, y, dim=-1):
@@ -81,7 +85,13 @@ class PoincareBall(Manifold):
 
         return self.add(
             x,
-            torch.tanh(self.conf_factor(x, dim, keepdim=True) * c_vv / 2) * v / c_vv,
+            torch.tanh(
+                torch.clamp(
+                    self.conf_factor(x, dim, keepdim=True) * c_vv / 2, min=-15, max=15
+                )
+            )
+            * v
+            / c_vv,
             dim,
         )
 
@@ -101,7 +111,7 @@ class PoincareBall(Manifold):
         c_vv = self.sqrt_c * torch.clamp(
             torch.norm(v, dim=dim, keepdim=True), min=self.eps
         )
-        return torch.tanh(c_vv) * v / c_vv
+        return torch.tanh(torch.clamp(c_vv, min=-15, max=15)) * v / c_vv
 
     def parallel_transport(self, x, dim=-1, _from=None, _to=None):
         return (

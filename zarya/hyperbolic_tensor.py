@@ -48,7 +48,7 @@ class HTensor:
 
     def transpose(self, dim0, dim1):
         return self.like(
-            tensor=self.tensor.transpose(dim0, dim1),
+            tensor=self.tensor.transpose(dim0, dim1).contiguous(),
             hdim=self._transposed_hdim(dim0, dim1),
         )
 
@@ -112,14 +112,10 @@ class HTensor:
         return self.__add__(-other)
 
     def __rmul__(self, other):
-        return self.like(
-            tensor=self.manifold.mul(self.tensor, other, self.hdim), project=True
-        )
+        return self.like(tensor=self.manifold.mul(self.tensor, other, self.hdim))
 
     def __mul__(self, other):
-        return self.like(
-            tensor=self.manifold.mul(self.tensor, other, self.hdim), project=True
-        )
+        return self.like(tensor=self.manifold.mul(self.tensor, other, self.hdim))
 
     def __neg__(self):
         return self.like(tensor=self.manifold.neg(self.tensor, self.hdim))
