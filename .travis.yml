@@ -1,0 +1,9 @@
+language: python
+
+
+install:
+  - pip install -r requirements.txt
+
+script:
+  - black --check --diff zarya tests
+  - python3 -m pytest tests -x -v
