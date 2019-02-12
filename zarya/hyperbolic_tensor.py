@@ -8,7 +8,11 @@ class HTensor:
     eps = 1e-5
 
     def __init__(
-        self, tensor, manifold=mf.PoincareBall(eps=eps), hdim=-1, project=True
+        self,
+        tensor,
+        manifold: mf.Manifold = mf.PoincareBall(eps=eps),
+        hdim=-1,
+        project=True,
     ):
         r"""
         Arguments:
@@ -28,15 +32,7 @@ class HTensor:
 
     def proj_(self):
         with torch.no_grad():
-            is_transposed = self.is_transposed()
-
-            if is_transposed:
-                self.tensor = self.tensor.transpose(self.hdim, -1)
-
-            self.manifold.proj_(self.tensor)
-
-            if is_transposed:
-                self.tensor = self.tensor.transpose(self.hdim, -1)
+            self.manifold.proj_(self.tensor, self.hdim)
 
     def like(self, **kwargs):
         return HTensor(
@@ -105,7 +101,7 @@ class HTensor:
 
         return self.like(
             tensor=self.manifold.add(self.tensor, other.tensor, dim=self.hdim),
-            project=True,
+            project=False,
         )
 
     def __sub__(self, other):

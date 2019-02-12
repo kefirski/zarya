@@ -18,7 +18,7 @@ def mul_coef(n, start, end):
 
 
 def generate_input(tuple_size, n=1000):
-    mul_f = mul_coef(n, 0.01, 0.18)
+    mul_f = mul_coef(n, 0.01, 0.5)
     return [
         tuple(
             [
@@ -61,29 +61,27 @@ def test_sum_mul(input):
 
     zero = HTensor(torch.zeros_like(x.tensor), manifold=x.manifold, hdim=1)
 
-    assert ((x + x).tensor - (2 * x).tensor).abs().mean().item() <= 1e-4
-    assert ((x + zero).tensor - (x).tensor).abs().max().item() <= 1e-6
-    assert ((zero + x).tensor - (x).tensor).abs().max().item() <= 1e-6
-    assert ((zero).tensor - (x * 0).tensor).abs().max().item() <= 1e-6
+    assert ((x + x).tensor - (2 * x).tensor).abs().max().item() <= 1e-5
+    assert ((x + zero).tensor - (x).tensor).abs().max().item() == 0
+    assert ((zero + x).tensor - (x).tensor).abs().max().item() == 0
+    assert ((zero).tensor - (x * 0).tensor).abs().max().item() == 0
 
 
 @pytest.mark.parametrize("input", generate_input(2))
 def test_log_exp(input):
     x, y, mul = input
 
-    eps = 1e-4 if mul < 0.12 else 5e-3
-
-    zero = HTensor(torch.zeros_like(x.tensor), hdim=1)
+    zero = HTensor(torch.zeros_like(x.tensor), hdim=1, project=False)
 
     log = x.log(y)
     exp = x.exp(log)
 
-    assert (y.tensor - exp.tensor).abs().mean().item() <= eps
+    assert (y.tensor - exp.tensor).abs().mean().item() <= 2e-5
 
     log = x.zero_log()
     exp = x.manifold.zero_exp(log, dim=x.hdim)
 
-    assert (x.tensor - exp).abs().mean().item() <= eps
+    assert (x.tensor - exp).abs().mean().item() <= 2e-5
 
 
 @pytest.mark.parametrize("input", generate_input(1))

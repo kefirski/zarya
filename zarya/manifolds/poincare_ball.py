@@ -18,20 +18,20 @@ class PoincareBall(Manifold):
         self.sqrt_c = sqrt(c)
         self.eps = eps
 
-    def proj_(self, x):
+    def proj_(self, x, dim=-1):
         with torch.no_grad():
-            norm = torch.norm(x, dim=-1)
-            norm = torch.clamp(norm, min=self.eps)
-
-            indices = sqrt(self.c) * norm >= 1 - self.eps
-
-            if indices.any():
-                coef = norm[indices].unsqueeze(1) * self.sqrt_c / (1 - self.eps)
-                x[indices] *= 1 / coef
+            exp = self.zero_exp(x, dim=dim)
+            x.copy_(exp)
 
     def conf_factor(self, x=None, dim=-1, keepdim=False):
         return (
-            2 / (1 - self.c * torch.sum(x * x, dim=dim, keepdim=keepdim))
+            2
+            / (
+                1
+                - torch.clamp(
+                    self.c * torch.sum(x * x, dim=dim, keepdim=keepdim), max=1.0 - 0.001
+                )
+            )
             if x is not None
             else 2.0
         )
@@ -46,9 +46,13 @@ class PoincareBall(Manifold):
 
         a = (1 + 2 * c * xy + c * yy) * x
         b = (1 - c * xx) * y
-        c = 2 * c * xy + c * c * xx * yy
+        c = 1 + 2 * c * xy + c * c * xx * yy
 
-        return (a + b) / (1 + c)
+        indices = (c < 1e-10) * (c > -1e-10)
+        if indices.any():
+            c[indices] = self.eps * torch.sign(c[indices])
+
+        return (a + b) / c
 
     def mul(self, x, r, dim=-1):
         x_norm = torch.clamp(torch.norm(x, dim=dim, keepdim=True), min=self.eps)
@@ -85,13 +89,7 @@ class PoincareBall(Manifold):
 
         return self.add(
             x,
-            torch.tanh(
-                torch.clamp(
-                    self.conf_factor(x, dim, keepdim=True) * c_vv / 2, min=-15, max=15
-                )
-            )
-            * v
-            / c_vv,
+            torch.tanh(self.conf_factor(x, dim, keepdim=True) * c_vv / 2) * v / c_vv,
             dim,
         )
 

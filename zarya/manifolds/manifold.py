@@ -1,5 +1,5 @@
 class Manifold:
-    def proj_(self, x):
+    def proj_(self, x, dim=-1):
         raise NotImplementedError
 
     def conf_factor(self, x=None, dim=-1, keepdim=False):

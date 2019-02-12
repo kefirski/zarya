@@ -4,7 +4,8 @@ import torch
 import torch.nn as nn
 import torch.nn.init as init
 
-from zarya import HTensor, HParameter
+from zarya import HTensor
+from zarya.nn import HParameter
 
 
 class Hyperplane(nn.Module):

@@ -1,4 +1,4 @@
-# zarya
+# Zarya
 Hyperbolic Neural Networks for PyTorch
 
 
