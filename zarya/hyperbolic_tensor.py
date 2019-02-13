@@ -19,7 +19,7 @@ class HTensor:
             tensor (torch.Tensor): source tensor.
             manifold (zarya.Manifold): Manifold instance. Default: PoincareBall(c=1.0)
             hdim (int): index of hyperbolic data. Default: -1
-            project (bool): whether to project source tensor on manifold. Default: True
+            project (bool): whether to project source tensor from tangent space on manifold. Default: True
         """
 
         self.tensor = tensor
@@ -100,8 +100,7 @@ class HTensor:
             raise ValueError("x: {} and y: {} found".format(self.info, other.info))
 
         return self.like(
-            tensor=self.manifold.add(self.tensor, other.tensor, dim=self.hdim),
-            project=False,
+            tensor=self.manifold.add(self.tensor, other.tensor, dim=self.hdim)
         )
 
     def __sub__(self, other):

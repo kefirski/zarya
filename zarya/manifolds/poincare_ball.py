@@ -25,13 +25,7 @@ class PoincareBall(Manifold):
 
     def conf_factor(self, x=None, dim=-1, keepdim=False):
         return (
-            2
-            / (
-                1
-                - torch.clamp(
-                    self.c * torch.sum(x * x, dim=dim, keepdim=keepdim), max=1.0 - 0.001
-                )
-            )
+            2 / (1 - self.c * torch.sum(x * x, dim=dim, keepdim=keepdim))
             if x is not None
             else 2.0
         )
@@ -48,7 +42,7 @@ class PoincareBall(Manifold):
         b = (1 - c * xx) * y
         c = 1 + 2 * c * xy + c * c * xx * yy
 
-        indices = (c < 1e-10) * (c > -1e-10)
+        indices = (c < 1e-12) * (c > -1e-12)
         if indices.any():
             c[indices] = self.eps * torch.sign(c[indices])
 
