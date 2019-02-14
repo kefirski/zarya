@@ -14,18 +14,19 @@ class RSGD(optim.SGD):
         """Performs a single optimization step.
         """
 
-        for group in self.param_groups:
-            for p in group["params"]:
+        with torch.no_grad():
+            for group in self.param_groups:
+                for p in group["params"]:
 
-                if p.tensor.grad is None:
-                    continue
+                    if p.tensor.grad is None:
+                        continue
 
-                p.tensor.data.copy_(
-                    p.manifold.exp(
-                        p.tensor,
-                        -group["lr"]
-                        * p.tensor.grad.data
-                        / torch.clamp(p.conf_factor(keepdim=True), min=1e-12),
-                        p.hdim,
+                    p.tensor.data.copy_(
+                        p.manifold.exp(
+                            p.tensor,
+                            -group["lr"]
+                            * p.tensor.grad.data
+                            / torch.clamp(p.conf_factor(keepdim=True), min=1e-12),
+                            p.hdim,
+                        )
                     )
-                )

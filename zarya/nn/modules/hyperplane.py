@@ -22,8 +22,7 @@ class Hyperplane(nn.Module):
             manifold=manifold,
             project=False,
         )
-        self.a = nn.Parameter(torch.randn(out_features, in_features))
-
+        self.a = nn.Parameter(torch.Tensor(out_features, in_features))
         self.reset_parameters()
 
     def reset_parameters(self):

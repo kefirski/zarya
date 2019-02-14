@@ -103,3 +103,9 @@ def test_linear(input):
         x.zero_log().matmul(layer.weight.t()) + layer.bias, dim=-1
     )
     assert (layer(x).tensor - result).abs().mean().item() <= eps
+
+
+def test_embed():
+    embed = nn.Embedding(100, 5, PoincareBall(), 0)
+    x = torch.LongTensor([[1, 2, 3, 0], [4, 5, 2, 0]])
+    embed(x)
