@@ -109,3 +109,11 @@ def test_embed():
     embed = nn.Embedding(100, 5, PoincareBall(), 0)
     x = torch.LongTensor([[1, 2, 3, 0], [4, 5, 2, 0]])
     embed(x)
+
+
+def test_gru():
+    gru = nn.GRUCell(5, 10, PoincareBall())
+
+    x = HTensor(torch.randn(3, 5) * 0.2)
+    hidden_state = HTensor(torch.randn(3, 10) * 0.2)
+    res = gru(x, hidden_state)
