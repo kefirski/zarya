@@ -3,6 +3,7 @@ from collections import OrderedDict
 import torch
 
 from .hyperbolic_parameter import HParameter
+from ..hyperbolic_tensor import HTensor
 
 
 class HModule(torch.nn.Module):
@@ -82,7 +83,7 @@ class HModule(torch.nn.Module):
 
     def hparameters(self):
         res = []
-        for param in self._hparameters.items():
+        for _, param in self._hparameters.items():
             res += [param]
 
         for module in self.children():
@@ -95,17 +96,13 @@ class HModule(torch.nn.Module):
         for module in self.children():
             module._apply(fn)
 
-        for param in self._parameters.values():
-            if param is not None:
-                param.data = fn(param.data)
-                if param._grad is not None:
-                    param._grad.data = fn(param._grad.data)
-
-        for param in self._hparameters.values():
-            if param is not None:
-                param.tensor.data = fn(param.tensor.data)
-                if param.tensor._grad is not None:
-                    param.tensor._grad.data = fn(param.tensor._grad.data)
+        for group in [self._parameters.values(), self._hparameters.values()]:
+            for param in group:
+                if param is not None:
+                    tensor = param.tensor if isinstance(param, HTensor) else param
+                    tensor.data = fn(tensor.data)
+                    if tensor._grad is not None:
+                        tensor._grad.data = fn(tensor._grad.data)
 
         for key, buf in self._buffers.items():
             if buf is not None:
