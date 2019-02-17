@@ -63,6 +63,9 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# Tensorboard
+default_tb/
+
 # pyenv
 .python-version
 

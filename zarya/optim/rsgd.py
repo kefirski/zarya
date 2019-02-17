@@ -33,6 +33,13 @@ class RSGD(optim.SGD):
                         )
                     )
 
+    def zero_grad(self):
+        for group in self.param_groups:
+            for p in group["params"]:
+                if p.tensor.grad is not None:
+                    p.tensor.grad.detach_()
+                    p.tensor.grad.zero_()
+
     def add_param_group(self, param_group):
         assert isinstance(param_group, dict), "param group must be a dict"
 
