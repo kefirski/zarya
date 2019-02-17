@@ -61,6 +61,23 @@ class HTensor:
 
         return self.like(tensor=tensor, hdim=hdim)
 
+    def split(self, split_size, dim=0):
+        assert dim != self.hdim, "dim should't be equal to hdim"
+
+        return [self.like(tensor=val) for val in self.tensor.split(split_size, dim)]
+
+    @staticmethod
+    def stack(htensors, dim=0):
+
+        hdims = [htensor.hdim for htensor in htensors]
+        assert max(hdims) == min(hdims), "All input htensors should have the same hdim"
+        hdim = hdims[0]
+
+        return htensors[0].like(
+            tensor=torch.stack([htensor.tensor for htensor in htensors], dim),
+            hdim=hdim if dim > hdim else hdim + 1,
+        )
+
     def is_transposed(self):
         return not self.hdim == len(self.tensor.size()) - 1
 
@@ -79,8 +96,9 @@ class HTensor:
         return self.manifold.conf_factor(self.tensor, self.hdim, keepdim=keepdim)
 
     def log(self, y):
-        if self.manifold != y.manifold or self.hdim != y.hdim:
-            raise ValueError("x: {} and y: {} found".format(self.info, y.info))
+        assert (
+            self.manifold == y.manifold and self.hdim == y.hdim
+        ), "x: {} and y: {} found".format(self.info, y.info)
 
         return self.manifold.log(self.tensor, y.tensor, dim=self.hdim)
 
@@ -96,8 +114,9 @@ class HTensor:
 
     def __add__(self, other):
 
-        if self.manifold != other.manifold or self.hdim != other.hdim:
-            raise ValueError("x: {} and y: {} found".format(self.info, other.info))
+        assert (
+            self.manifold == other.manifold and self.hdim == other.hdim
+        ), "x: {} and y: {} found".format(self.info, other.info)
 
         return self.like(
             tensor=self.manifold.add(self.tensor, other.tensor, dim=self.hdim)
@@ -114,6 +133,15 @@ class HTensor:
 
     def __neg__(self):
         return self.like(tensor=self.manifold.neg(self.tensor, self.hdim))
+
+    def cpu(self):
+        return self.like(tensor=self.tensor.cpu())
+
+    def cuda(self, device):
+        return self.like(tensor=self.tensor.cuda(device))
+
+    def to(self, *args, **kwargs):
+        return self.like(tensor=self.tensor.to(*args, **kwargs))
 
     def __repr__(self):
         return (

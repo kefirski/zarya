@@ -6,11 +6,12 @@ import torch.nn.init as init
 
 import zarya.manifolds as mf
 from zarya import HTensor
+from zarya.nn import HModule
 from ..modules.linear import Linear
 from ..modules.nonlinear import NonLinear
 
 
-class GRUCell(nn.Module):
+class GRUCell(HModule):
     def __init__(self, in_features, out_features, manifold: mf.Manifold):
         super(GRUCell, self).__init__()
 

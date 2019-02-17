@@ -1,3 +1,4 @@
+from .hmodule import HModule
 from .hyperbolic_parameter import HParameter
 from .modules import Embedding
 from .modules import GRUCell

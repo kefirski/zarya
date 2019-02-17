@@ -1,14 +1,12 @@
-import math
-
 import torch
 import torch.nn as nn
 import torch.nn.init as init
 
 from zarya import HTensor
-from zarya.nn import HParameter
+from zarya.nn import HParameter, HModule
 
 
-class Hyperplane(nn.Module):
+class Hyperplane(HModule):
     def __init__(self, in_features, out_features, manifold):
         super(Hyperplane, self).__init__()
 
@@ -29,7 +27,7 @@ class Hyperplane(nn.Module):
         init.uniform_(self.p.tensor, -0.001, 0.001)
         self.p.proj_()
 
-        init.kaiming_uniform_(self.a, a=math.sqrt(5))
+        init.uniform_(self.a, -0.001, 0.001)
 
     def forward(self, input: HTensor):
         assert (
@@ -48,10 +46,10 @@ class Hyperplane(nn.Module):
             .view(-1, self.in_features)
         )
 
-        a = input.manifold.parallel_transport(a, _to=self.p)
+        a = input.manifold.parallel_transport(self.a, _to=self.p.tensor)
 
         p = self.p.tensor.unsqueeze(0).repeat(b_s, 1, 1).view(-1, self.in_features)
-        a = self.a.unsqueeze(0).repeat(b_s, 1, 1).view(-1, self.in_features)
+        a = a.unsqueeze(0).repeat(b_s, 1, 1).view(-1, self.in_features)
 
         result = input.manifold.hyperplane(result, p, a)
         return result.view(b_s, self.out_features)

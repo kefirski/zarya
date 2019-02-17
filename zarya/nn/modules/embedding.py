@@ -4,10 +4,10 @@ import torch.nn.functional as F
 import torch.nn.init as init
 
 from zarya import HTensor
-from zarya.nn import HParameter
+from zarya.nn import HParameter, HModule
 
 
-class Embedding(nn.Module):
+class Embedding(HModule):
     def __init__(
         self,
         num_embeddings,
