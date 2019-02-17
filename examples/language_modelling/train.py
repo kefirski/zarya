@@ -18,6 +18,7 @@ if __name__ == "__main__":
     parser.add_argument("--embedding-size", type=int, default=5, metavar="ES")
     parser.add_argument("--hidden-size", type=int, default=15, metavar="HS")
     parser.add_argument("--tensorboard", type=str, default="default_tb", metavar="TB")
+    parser.add_argument("--data", type=str, default="./data/", metavar="DP")
     args = parser.parse_args()
 
     device = t.device("cuda" if t.cuda.is_available() else "cpu")
@@ -25,7 +26,7 @@ if __name__ == "__main__":
     writer = SummaryWriter(args.tensorboard)
 
     t.set_num_threads(args.num_threads)
-    loader = Dataloader("./data/")
+    loader = Dataloader(args.data)
 
     model = Model(
         vocab_size=loader.sp.GetPieceSize(),
