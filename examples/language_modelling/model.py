@@ -1,5 +1,4 @@
 import torch
-import torch.nn as nn
 
 import zarya
 import zarya.nn as znn
@@ -23,6 +22,7 @@ class Model(znn.HModule):
             embedding_dim=self.embedding_size,
             manifold=self.manifold,
             padding_idx=0,
+            sparse=True,
         )
         self.gru = znn.GRUCell(embedding_size, hidden_size, self.manifold)
         self.out = znn.Hyperplane(hidden_size, vocab_size, self.manifold)
