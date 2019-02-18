@@ -48,7 +48,7 @@ class GRUCell(HModule):
             not x.is_transposed() and not hx.is_transposed()
         ), "x and hidden_state are transposed"
 
-        batch_size = x.tensor.size(0)
+        batch_size = x.size(0)
 
         r = torch.sigmoid((self.w_r(hx) + self.u_r(x)).zero_log())
         z = torch.sigmoid((self.w_z(hx) + self.u_z(x)).zero_log())

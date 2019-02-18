@@ -143,6 +143,9 @@ class HTensor:
     def to(self, *args, **kwargs):
         return self.like(tensor=self.tensor.to(*args, **kwargs))
 
+    def __getattr__(self, item):
+        return self.tensor.__getattribute__(item)
+
     def __repr__(self):
         return (
             "{} \n{}\n".format(self.tensor, self.info)

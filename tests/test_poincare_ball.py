@@ -44,7 +44,7 @@ def test_norm(input):
 @pytest.mark.parametrize("input", generate_input(1, n=10))
 def test_view(input):
     x, _ = input
-    x.transpose(1, 2).view(-1, x.tensor.size(1))
+    x.transpose(1, 2).view(-1, x.size(1))
 
 
 @pytest.mark.parametrize("input", generate_input(1, n=10))

@@ -20,14 +20,14 @@ class RSGD(optim.SGD):
             for group in self.param_groups:
                 for p in group["params"]:
 
-                    if p.tensor.grad is None:
+                    if p.grad is None:
                         continue
 
-                    p.tensor.data.copy_(
+                    p.data.copy_(
                         p.manifold.exp(
                             p.tensor,
                             -group["lr"]
-                            * p.tensor.grad.data
+                            * p.grad.data
                             / torch.clamp(p.conf_factor(keepdim=True) ** 2, min=1e-12),
                             p.hdim,
                         )
