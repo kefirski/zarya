@@ -72,20 +72,21 @@ def replicate(network, devices, detach=False):
                         if detach
                         else param_copies[j][param_idx]
                     )
-        for key, hparam in module._hparameters.items():
-            if hparam is None:
-                for j in range(num_replicas):
-                    replica = module_copies[j][i]
-                    replica._hparameters[key] = None
-            else:
-                hparam_idx = hparam_indices[hparam]
-                for j in range(num_replicas):
-                    replica = module_copies[j][i]
-                    replica._hparameters[key].tensor = (
-                        hparam_copies[j][hparam_idx].detach()
-                        if detach
-                        else hparam_copies[j][hparam_idx]
-                    )
+        if getattr(module, "_hparameters") is not None:
+            for key, hparam in module._hparameters.items():
+                if hparam is None:
+                    for j in range(num_replicas):
+                        replica = module_copies[j][i]
+                        replica._hparameters[key] = None
+                else:
+                    hparam_idx = hparam_indices[hparam]
+                    for j in range(num_replicas):
+                        replica = module_copies[j][i]
+                        replica._hparameters[key].tensor = (
+                            hparam_copies[j][hparam_idx].detach()
+                            if detach
+                            else hparam_copies[j][hparam_idx]
+                        )
         for key, buf in module._buffers.items():
             if buf is None:
                 for j in range(num_replicas):
