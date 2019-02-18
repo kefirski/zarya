@@ -69,4 +69,4 @@ if __name__ == "__main__":
         if i % 20 == 0:
             with t.no_grad():
                 generation = model.generate(1, device)
-                print(loader.sp.DecodeIds(generation))
+                print(loader.sp.DecodeIds(generation) + "\n")

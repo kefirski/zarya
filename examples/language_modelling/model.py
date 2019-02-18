@@ -42,7 +42,7 @@ class Model(znn.HModule):
         res = []
         if hx is None:
             hx = zarya.HTensor(
-                torch.zeros(batch_size, self.hidden_size),
+                torch.zeros(batch_size, self.hidden_size, device=input.tensor.device),
                 manifold=self.manifold,
                 project=False,
             )
@@ -54,7 +54,7 @@ class Model(znn.HModule):
         return self.out(res), hx
 
     def generate(self, idx, device):
-        idx = torch.LongTensor([[idx]], device=device)
+        idx = torch.LongTensor([[idx]]).to(device)
         hx = None
 
         res = []
@@ -73,6 +73,6 @@ class Model(znn.HModule):
                 break
 
             res += [idx]
-            idx = torch.LongTensor([[idx]], device=device)
+            idx = torch.LongTensor([[idx]]).to(device)
 
         return res
