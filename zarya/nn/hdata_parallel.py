@@ -72,7 +72,7 @@ def replicate(network, devices, detach=False):
                         if detach
                         else param_copies[j][param_idx]
                     )
-        if getattr(module, "_hparameters") is not None:
+        if getattr(module, "_hparameters", None) is not None:
             for key, hparam in module._hparameters.items():
                 if hparam is None:
                     for j in range(num_replicas):
