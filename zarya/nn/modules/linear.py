@@ -5,9 +5,10 @@ import torch.nn as nn
 import torch.nn.init as init
 
 from zarya import HTensor
+from zarya.nn import HModule
 
 
-class Linear(nn.Module):
+class Linear(HModule):
     def __init__(self, in_features, out_features, bias=True):
         super(Linear, self).__init__()
 

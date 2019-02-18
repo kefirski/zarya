@@ -1,9 +1,8 @@
-import torch.nn as nn
-
 from zarya import HTensor
+from zarya.nn import HModule
 
 
-class NonLinear(nn.Module):
+class NonLinear(HModule):
     def __init__(self, f):
         super(NonLinear, self).__init__()
 
