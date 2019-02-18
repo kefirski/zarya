@@ -3,5 +3,5 @@ import torch.nn as nn
 from .hmodule import HModule
 
 
-class HDataParallel(HModule, nn.DataParallel):
+class HDataParallel(nn.DataParallel, HModule):
     pass
