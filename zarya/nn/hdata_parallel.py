@@ -22,7 +22,7 @@ def replicate(network, devices, detach=False):
 
     hparams = list(network.hparameters())
     hparam_indices = {param: idx for idx, param in enumerate(hparams)}
-    hparam_copies = Broadcast.apply(devices, *hparams)
+    hparam_copies = Broadcast.apply(devices, *[hparam.tensor for hparam in hparams])
     if len(hparams) > 0:
         hparam_copies = [
             hparam_copies[i : i + len(hparams)]
@@ -81,7 +81,7 @@ def replicate(network, devices, detach=False):
                 hparam_idx = hparam_indices[hparam]
                 for j in range(num_replicas):
                     replica = module_copies[j][i]
-                    replica._hparameters[key] = (
+                    replica._hparameters[key].tensor = (
                         hparam_copies[j][hparam_idx].detach()
                         if detach
                         else hparam_copies[j][hparam_idx]
