@@ -1,3 +1,4 @@
+from .hdata_parallel import HDataParallel
 from .hmodule import HModule
 from .hyperbolic_parameter import HParameter
 from .modules import Embedding

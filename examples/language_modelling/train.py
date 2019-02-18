@@ -7,6 +7,7 @@ from model import Model
 from tensorboardX import SummaryWriter
 from torch.optim import Adam
 
+from zarya.nn import HDataParallel
 from zarya.optim import RSGD
 
 if __name__ == "__main__":
@@ -21,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument("--data", type=str, default="./data/", metavar="DP")
     args = parser.parse_args()
 
-    device = t.device("cuda" if t.cuda.is_available() else "cpu")
+    device = "cpu"
 
     writer = SummaryWriter(args.tensorboard)
 
@@ -32,8 +33,8 @@ if __name__ == "__main__":
         vocab_size=loader.sp.GetPieceSize(),
         embedding_size=args.embedding_size,
         hidden_size=args.hidden_size,
-    )
-    model.to(device)
+    ).cuda()
+    model = HDataParallel(model, device_ids=[0, 1, 2, 3])
 
     euc_optimizer = Adam(model.parameters(), lr=0.0002)
     hyp_optimizer = RSGD(model.hparameters(), lr=0.001)
@@ -68,5 +69,5 @@ if __name__ == "__main__":
 
         if i % 20 == 0:
             with t.no_grad():
-                generation = model.generate(1, device)
+                generation = model.module.generate(1, "cuda")
                 print(loader.sp.DecodeIds(generation) + "\n")
