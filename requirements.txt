@@ -1,5 +1,4 @@
 pytest
 black
 wheel
-sphinx
 numpy
