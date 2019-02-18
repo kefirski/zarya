@@ -6,7 +6,7 @@ from .hmodule import HModule
 
 
 def replicate(network, devices, detach=False):
-    from ._functions import Broadcast
+    from torch.nn.parallel._functions import Broadcast
 
     devices = list(map(lambda x: _get_device_index(x, True), devices))
     num_replicas = len(devices)
