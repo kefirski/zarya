@@ -7,14 +7,15 @@ from model import Model
 from tensorboardX import SummaryWriter
 from torch.optim import Adam
 
-from zarya.nn import HDataParallel
+import zarya.nn as znn
+from zarya.manifolds import PoincareBall
 from zarya.optim import RSGD
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="clickbait")
     parser.add_argument("--num-iterations", type=int, default=70000, metavar="NI")
-    parser.add_argument("--batch-size", type=int, default=64, metavar="BS")
+    parser.add_argument("--batch-size", type=int, default=2, metavar="BS")
     parser.add_argument("--num-threads", type=int, default=4, metavar="NT")
     parser.add_argument("--embedding-size", type=int, default=5, metavar="ES")
     parser.add_argument("--hidden-size", type=int, default=15, metavar="HS")
@@ -29,15 +30,24 @@ if __name__ == "__main__":
     t.set_num_threads(args.num_threads)
     loader = Dataloader(args.data)
 
+    manifold = PoincareBall()
+
     model = Model(
         vocab_size=loader.sp.GetPieceSize(),
         embedding_size=args.embedding_size,
         hidden_size=args.hidden_size,
-    ).cuda()
-    model = HDataParallel(model, device_ids=[0, 1, 2, 3])
+        manifold=manifold,
+    )
+    model = model.to(device)
 
-    euc_optimizer = Adam(model.parameters(), lr=0.0002)
-    hyp_optimizer = RSGD(model.hparameters(), lr=0.001)
+    euc_optimizer = Adam(
+        [p for p in model.parameters() if not isinstance(p, znn.Parameter)], lr=0.0002
+    )
+    hyp_optimizer = RSGD(
+        [p for p in model.parameters() if isinstance(p, znn.Parameter)],
+        manifold=manifold,
+        lr=0.001,
+    )
 
     criterion = nn.CrossEntropyLoss(ignore_index=0)
 
@@ -69,5 +79,5 @@ if __name__ == "__main__":
 
         if i % 20 == 0:
             with t.no_grad():
-                generation = model.module.generate(1, "cuda")
+                generation = model.generate(1, device)
                 print(loader.sp.DecodeIds(generation) + "\n")

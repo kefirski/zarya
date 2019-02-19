@@ -1,15 +1,15 @@
-from zarya import HTensor
-from zarya.nn import HModule
+import torch.nn as nn
 
 
-class NonLinear(HModule):
-    def __init__(self, f):
+class NonLinear(nn.Module):
+    def __init__(self, f, manifold):
         super(NonLinear, self).__init__()
 
         self.f = f
+        self.mf = manifold
 
-    def forward(self, input: HTensor):
-        tangent_input = input.zero_log()
+    def forward(self, input, dim=-1):
+        tangent_input = self.mf.zero_log(input, dim)
         result = self.f(tangent_input)
 
-        return HTensor.zero_exp(result, input.manifold, hdim=input.hdim)
+        return self.mf.zero_exp(result, dim)

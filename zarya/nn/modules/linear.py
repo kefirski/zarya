@@ -4,16 +4,15 @@ import torch
 import torch.nn as nn
 import torch.nn.init as init
 
-from zarya import HTensor
-from zarya.nn import HModule
 
-
-class Linear(HModule):
-    def __init__(self, in_features, out_features, bias=True):
+class Linear(nn.Module):
+    def __init__(self, in_features, out_features, manifold, bias=True):
         super(Linear, self).__init__()
 
         self.in_features = in_features
         self.out_features = out_features
+
+        self.mf = manifold
 
         self.weight = nn.Parameter(torch.Tensor(out_features, in_features))
 
@@ -29,17 +28,11 @@ class Linear(HModule):
         if self.bias is not None:
             init.uniform_(self.bias, -1e-3, 1e-3)
 
-    def forward(self, input: HTensor):
-        if input.is_transposed():
-            raise ValueError(
-                "input.hdim should be equal to input.dim() - 1, {} found".format(
-                    input.hdim
-                )
-            )
+    def forward(self, input):
 
-        result = input.like(tensor=input.manifold.linear(input.tensor, self.weight))
+        result = self.mf.linear(input, self.weight)
         return (
-            result.exp(result.manifold.parallel_transport(self.bias, _to=result.tensor))
+            self.mf.exp(result, self.mf.parallel_transport(self.bias, _to=result))
             if self.bias is not None
             else result
         )

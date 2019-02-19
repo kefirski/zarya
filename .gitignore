@@ -66,6 +66,9 @@ target/
 # Tensorboard
 default_tb/
 
+# etc
+test.py
+
 # pyenv
 .python-version
 
