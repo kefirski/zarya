@@ -25,7 +25,13 @@ class Model(nn.Module):
         self.gru = znn.GRUCell(embedding_size, hidden_size, self.mf)
         self.out = znn.Hyperplane(hidden_size, vocab_size, self.mf)
 
-    def forward(self, input, hx=None):
+        self.criterion = nn.CrossEntropyLoss(ignore_index=0)
+
+    def forward(self, input, target):
+        out, _ = self._forward(input)
+        return self.criterion(out, target.view(-1))
+
+    def _forward(self, input, hx=None):
         """
         :param input: Long tensor with shape [batch_size, seq_len]
         :param hx: Float tensor with shape [batch_size, hidden_size]
@@ -55,7 +61,7 @@ class Model(nn.Module):
 
         for _ in range(500):
 
-            out, hx = self(idx, hx)
+            out, hx = self._forward(idx, hx)
             out = F.softmax(
                 1.5 * out.squeeze(), dim=-1
             )  # 1.5 is for increasing the temperature of sampling

@@ -49,8 +49,6 @@ if __name__ == "__main__":
         lr=0.001,
     )
 
-    criterion = nn.CrossEntropyLoss(ignore_index=0)
-
     for i in range(args.num_iterations):
 
         euc_optimizer.zero_grad()
@@ -59,7 +57,7 @@ if __name__ == "__main__":
         model.train()
 
         input, target = loader.next_batch(args.batch_size, "train", device)
-        nll = criterion(model(input)[0], target.view(-1))
+        nll = model(input, target).mean()
         nll.backward()
 
         euc_optimizer.step()
@@ -70,7 +68,7 @@ if __name__ == "__main__":
         if i % 100 == 0:
             input, target = loader.next_batch(args.batch_size, "test", device)
             with t.no_grad():
-                test_nll = criterion(model(input)[0], target.view(-1))
+                test_nll = model(input, target).mean()
 
                 writer.add_scalar("train loss", nll.cpu(), i)
                 writer.add_scalar("test loss", test_nll.cpu(), i)
