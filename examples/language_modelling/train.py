@@ -77,5 +77,5 @@ if __name__ == "__main__":
 
         if i % 20 == 0:
             with t.no_grad():
-                generation = model.generate(1, device)
+                generation = model.generate(1, "cuda")
                 print(loader.sp.DecodeIds(generation) + "\n")
