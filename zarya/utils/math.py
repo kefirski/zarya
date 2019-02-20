@@ -26,7 +26,7 @@ class Asinh(Function):
         _x = torch.sqrt(x * x + 1)
 
         ctx.save_for_backward(_x)
-        return torch.log(_x + x)
+        return torch.log(torch.clamp(_x + x, min=Asinh.eps))
 
     @staticmethod
     def backward(ctx, grad_output):

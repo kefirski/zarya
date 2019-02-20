@@ -25,7 +25,10 @@ class PoincareBall(Manifold):
 
     def conf_factor(self, x=None, dim=-1, keepdim=False):
         return (
-            2 / (1 - self.c * torch.sum(x * x, dim=dim, keepdim=keepdim))
+            torch.clamp(
+                2 / (1 - self.c * torch.sum(x * x, dim=dim, keepdim=keepdim)),
+                min=self.eps,
+            )
             if x is not None
             else 2.0
         )
@@ -42,9 +45,10 @@ class PoincareBall(Manifold):
         b = (1 - c * xx) * y
         c = 1 + 2 * c * xy + c * c * xx * yy
 
-        indices = (c < 1e-12) * (c > -1e-12)
-        if indices.any():
-            c[indices] = self.eps * torch.sign(c[indices])
+        # indices = (c < 1e-12) * (c > -1e-12)
+        # if indices.any():
+        #     c[indices] = self.eps * torch.sign(c[indices])
+        self.clamp_inside_(c, -1e-12, 1e-12)
 
         return (a + b) / c
 
@@ -133,10 +137,17 @@ class PoincareBall(Manifold):
         _sum_norm_2 = torch.sum(_sum * _sum, dim=-1)
         a_norm = torch.norm(a, dim=-1)
 
+        denominator = (1 - self.c * _sum_norm_2) * a_norm
+        self.clamp_inside_(denominator, -self.eps, self.eps)
+
         return (self.conf_factor(p) * a_norm / self.sqrt_c) * asinh(
-            (2 * self.sqrt_c * torch.sum(_sum * a, dim=-1))
-            / ((1 - self.c * _sum_norm_2) * a_norm)
+            (2 * self.sqrt_c * torch.sum(_sum * a, dim=-1)) / denominator
         )
+
+    def clamp_inside_(self, value, _from, _to):
+        indices = (value > _from) * (value < _to)
+        if indices.any():
+            value[indices] = self.eps * torch.sign(value[indices])
 
     def __repr__(self):
         return "Poincare Ball Manifold, c = {}".format(self.c)

@@ -28,8 +28,6 @@ class RSGD(optim.SGD):
                             p,
                             -group["lr"]
                             * p.grad.data
-                            / torch.clamp(
-                                self.mf.conf_factor(p, -1, keepdim=True) ** 2, min=1e-12
-                            ),
+                            / self.mf.conf_factor(p, -1, keepdim=True) ** 2,
                         )
                     )
