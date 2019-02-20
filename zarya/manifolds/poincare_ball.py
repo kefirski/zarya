@@ -45,9 +45,6 @@ class PoincareBall(Manifold):
         b = (1 - c * xx) * y
         c = 1 + 2 * c * xy + c * c * xx * yy
 
-        # indices = (c < 1e-12) * (c > -1e-12)
-        # if indices.any():
-        #     c[indices] = self.eps * torch.sign(c[indices])
         self.clamp_inside_(c, -1e-12, 1e-12)
 
         return (a + b) / c
