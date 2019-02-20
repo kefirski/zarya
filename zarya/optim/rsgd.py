@@ -18,16 +18,11 @@ class RSGD(optim.SGD):
 
         with torch.no_grad():
             for group in self.param_groups:
+                lr = group["lr"]
                 for p in group["params"]:
 
                     if p.grad is None:
                         continue
 
-                    p.data.copy_(
-                        self.mf.exp(
-                            p,
-                            -group["lr"]
-                            * p.grad.data
-                            / self.mf.conf_factor(p, -1, keepdim=True) ** 2,
-                        )
-                    )
+                    lambda_square = self.mf.conf_factor(p, keepdim=True) ** 2
+                    p.data.copy_(self.mf.exp(p, -lr * p.grad.data / lambda_square))
