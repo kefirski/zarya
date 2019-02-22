@@ -1,7 +1,6 @@
 import argparse
 
 import torch as t
-import torch.nn as nn
 from dataloader import Dataloader
 from model import Model
 from tensorboardX import SummaryWriter
@@ -33,7 +32,7 @@ if __name__ == "__main__":
     manifold = PoincareBall()
 
     model = Model(
-        vocab_size=loader.sp.GetPieceSize(),
+        vocab_size=len(loader.idx_to_char),
         embedding_size=args.embedding_size,
         hidden_size=args.hidden_size,
         manifold=manifold,
@@ -56,7 +55,7 @@ if __name__ == "__main__":
 
         model.train()
 
-        input, target = loader.next_batch(args.batch_size, "train", device)
+        input, target = loader.next_batch(args.batch_size, 200, "train", device)
         nll = model(input, target).mean()
         nll.backward()
 
@@ -66,16 +65,11 @@ if __name__ == "__main__":
         model.eval()
 
         if i % 100 == 0:
-            input, target = loader.next_batch(args.batch_size, "test", device)
+            input, target = loader.next_batch(args.batch_size, 200, "valid", device)
             with t.no_grad():
-                test_nll = model(input, target).mean()
+                valid_bpc = model(input, target, 2).mean()
 
-                writer.add_scalar("train loss", nll.cpu(), i)
-                writer.add_scalar("test loss", test_nll.cpu(), i)
-                print("i {}, train {} test {}".format(i, nll.item(), test_nll.item()))
+                writer.add_scalar("train nll", nll.cpu(), i)
+                writer.add_scalar("valid bpc", valid_bpc.cpu(), i)
+                print("i {}, train {} valid {}".format(i, nll.item(), valid_bpc.item()))
                 print("_________")
-
-        if i % 20 == 0:
-            with t.no_grad():
-                generation = model.generate(1, "cuda")
-                print(loader.sp.DecodeIds(generation) + "\n")

@@ -1,5 +1,6 @@
+from string import ascii_lowercase
+
 import numpy as np
-import sentencepiece as spm
 import torch as t
 
 
@@ -15,35 +16,29 @@ class Dataloader:
             str, type(data_path)
         )
 
-        self.targets = ["train", "test"]
+        with open("{}text8".format(data_path)) as file:
+            self.data = file.read()
 
         self.data = {
-            target: np.load("{}{}.npy".format(data_path, target))
-            for target in self.targets
+            "train": self.data[: int(90e6)],
+            "valid": self.data[int(90e6) : int(95e6)],
+            "test": self.data[int(95e6) :],
         }
 
-        self.sp = spm.SentencePieceProcessor()
-        self.sp.Load("{}lm.model".format(data_path))
+        self.idx_to_char = [" "] + [c for c in ascii_lowercase]
+        self.char_to_idx = {c: i for i, c in enumerate(self.idx_to_char)}
 
-    def next_batch(self, batch_size, target, device):
+    def next_batch(self, batch_size, seq_len, target, device):
         data = self.data[target]
 
-        input = data[np.random.randint(len(data), size=batch_size)]
+        indices = np.random.randint(len(data) - seq_len - 2, size=batch_size)
 
-        input = [[1] + self.sp.EncodeAsIds(line) + [2] for line in input]
+        input = [data[idx : idx + seq_len + 1] for idx in indices]
+        input = [[self.char_to_idx[c] for c in batch] for batch in input]
 
-        target = self.padd_sequences([line[1:] for line in input])
-        input = self.padd_sequences([line[:-1] for line in input])
+        target = [batch[1:] for batch in input]
+        input = [batch[:-1] for batch in input]
 
         return tuple(
             [t.tensor(i, dtype=t.long, device=device) for i in [input, target]]
-        )
-
-    @staticmethod
-    def padd_sequences(lines):
-        lengths = [len(line) for line in lines]
-        max_length = max(lengths)
-
-        return np.array(
-            [line + [0] * (max_length - lengths[i]) for i, line in enumerate(lines)]
         )

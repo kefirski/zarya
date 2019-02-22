@@ -4,8 +4,8 @@ import torch
 import torch.nn as nn
 import torch.nn.init as init
 
+from ..modules.hyperbolic import Hyperbolic
 from ..modules.linear import Linear
-from ..modules.nonlinear import NonLinear
 
 
 class GRUCell(nn.Module):
@@ -27,7 +27,7 @@ class GRUCell(nn.Module):
 
         self.w = nn.Parameter(torch.Tensor(out_features, out_features))
 
-        self.tanh = NonLinear(nn.Tanh(), manifold)
+        self.tanh = Hyperbolic(nn.Tanh(), manifold)
 
         self.reset_parameters()
 

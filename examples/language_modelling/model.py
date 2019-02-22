@@ -1,7 +1,7 @@
-import numpy as np
+from math import log
+
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 import zarya.nn as znn
 
@@ -25,13 +25,9 @@ class Model(nn.Module):
         self.gru = znn.GRUCell(embedding_size, hidden_size, self.mf)
         self.out = znn.Hyperplane(hidden_size, vocab_size, self.mf)
 
-        self.criterion = nn.CrossEntropyLoss(ignore_index=0)
+        self.criterion = nn.CrossEntropyLoss(reduction="none")
 
-    def forward(self, input, target):
-        out, _ = self._forward(input)
-        return self.criterion(out, target.view(-1))
-
-    def _forward(self, input, hx=None):
+    def logits(self, input, hx=None):
         """
         :param input: Long tensor with shape [batch_size, seq_len]
         :param hx: Float tensor with shape [batch_size, hidden_size]
@@ -53,26 +49,11 @@ class Model(nn.Module):
         res = torch.stack(res, 1).view(-1, self.hidden_size)
         return self.out(res), hx
 
-    def generate(self, idx, device):
-        idx = torch.LongTensor([[idx]]).to(device)
-        hx = None
+    def forward(self, input, target, log_base=None):
+        out, _ = self.logits(input)
+        loss = self.criterion(out, target.view(-1))
 
-        res = []
+        if log_base is not None:
+            loss = loss / log(log_base)
 
-        for _ in range(500):
-
-            out, hx = self._forward(idx, hx)
-            out = F.softmax(
-                1.5 * out.squeeze(), dim=-1
-            )  # 1.5 is for increasing the temperature of sampling
-            out = out.cpu().numpy()
-
-            idx = int(np.random.choice(self.vocab_size, 1, p=out)[0])
-
-            if idx == 2:
-                break
-
-            res += [idx]
-            idx = torch.LongTensor([[idx]]).to(device)
-
-        return res
+        return loss.mean().unsqueeze(0)

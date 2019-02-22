@@ -1,9 +1,9 @@
 import torch.nn as nn
 
 
-class NonLinear(nn.Module):
+class Hyperbolic(nn.Module):
     def __init__(self, f, manifold):
-        super(NonLinear, self).__init__()
+        super(Hyperbolic, self).__init__()
 
         self.f = f
         self.mf = manifold
