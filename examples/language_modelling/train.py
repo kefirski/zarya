@@ -36,21 +36,13 @@ if __name__ == "__main__":
     model = Model(
         vocab_size=len(loader.idx_to_char),
         embedding_size=args.embedding_size,
-        n_layers=4,
-        n_heads=8,
-        p_s=int(args.embedding_size / 4),
+        hidden_size=args.hidden_size,
         manifold=manifold,
     ).cuda()
     model = nn.DataParallel(model, device_ids=[0, 1, 2, 3])
 
-    euc_optimizer = ScheduledOptim(
-        Adam(
-            [p for p in model.parameters() if not isinstance(p, znn.Parameter)],
-            betas=(0.9, 0.98),
-            eps=1e-9,
-        ),
-        args.embedding_size,
-        4000,
+    euc_optimizer = Adam(
+        [p for p in model.parameters() if not isinstance(p, znn.Parameter)], lr=0.0002
     )
     hyp_optimizer = RSGD(
         [p for p in model.parameters() if isinstance(p, znn.Parameter)],
@@ -61,8 +53,6 @@ if __name__ == "__main__":
     for i in range(args.num_iterations):
 
         euc_optimizer.zero_grad()
-        euc_optimizer.update_learning_rate()
-
         hyp_optimizer.zero_grad()
 
         model.train()
