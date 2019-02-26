@@ -34,7 +34,9 @@ if __name__ == "__main__":
     model = Model(
         vocab_size=len(loader.idx_to_char),
         embedding_size=args.embedding_size,
-        hidden_size=args.hidden_size,
+        n_layers=4,
+        n_heads=8,
+        p_s=int(args.embedding_size / 4),
         manifold=manifold,
     )
     model = model.to(device)
