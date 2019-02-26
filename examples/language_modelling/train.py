@@ -4,7 +4,6 @@ import torch as t
 import torch.nn as nn
 from dataloader import Dataloader
 from model import Model
-from scheduled_optim import ScheduledOptim
 from tensorboardX import SummaryWriter
 from torch.optim import Adam
 

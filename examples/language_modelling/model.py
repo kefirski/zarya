@@ -23,7 +23,12 @@ class Model(nn.Module):
             padding_idx=0,
         )
         self.gru = nn.ModuleList(
-            [znn.GRUCell(embedding_size, hidden_size, self.mf) for _ in range(3)]
+            [
+                znn.GRUCell(
+                    embedding_size if i == 0 else hidden_size, hidden_size, self.mf
+                )
+                for i in range(3)
+            ]
         )
         self.out = znn.Hyperplane(hidden_size, vocab_size, self.mf)
 
