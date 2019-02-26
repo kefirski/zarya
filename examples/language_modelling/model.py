@@ -53,9 +53,9 @@ class Model(nn.Module):
                 hx = gru(x.view(-1, self.embedding_size), hx)
                 res += [hx]
 
-            input = torch.stack(res, 1).view(-1, self.hidden_size)
+            input = torch.stack(res, 1)
 
-        return self.out(input)
+        return self.out(input.view(-1, self.hidden_size))
 
     def forward(self, input, target, log_base=None):
         out = self.logits(input)
