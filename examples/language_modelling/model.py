@@ -44,18 +44,18 @@ class Model(nn.Module):
 
         input = self.embeddings(input)
 
-        for gru in self.gru:
+        for i, gru in enumerate(self.gru):
 
             res = []
             hx = torch.zeros(batch_size, self.hidden_size, device=input.device)
 
             for x in input.split(1, 1):
-                hx = gru(x.view(-1, self.embedding_size), hx)
+                hx = gru(x.squeeze(1), hx)
                 res += [hx]
 
             input = torch.stack(res, 1)
 
-        return self.out(input.view(-1, self.hidden_size))
+        return self.out(input.contiguous().view(-1, self.hidden_size))
 
     def forward(self, input, target, log_base=None):
         out = self.logits(input)
