@@ -1,8 +1,10 @@
 import argparse
 
 import torch as t
+import torch.nn as nn
 from dataloader import Dataloader
 from model import Model
+from scheduled_optim import ScheduledOptim
 from tensorboardX import SummaryWriter
 from torch.optim import Adam
 
@@ -38,11 +40,17 @@ if __name__ == "__main__":
         n_heads=8,
         p_s=int(args.embedding_size / 4),
         manifold=manifold,
-    )
-    model = model.to(device)
+    ).cuda()
+    model = nn.DataParallel(model, device_ids=[0, 1, 2, 3])
 
-    euc_optimizer = Adam(
-        [p for p in model.parameters() if not isinstance(p, znn.Parameter)], lr=0.0002
+    euc_optimizer = ScheduledOptim(
+        Adam(
+            [p for p in model.parameters() if not isinstance(p, znn.Parameter)],
+            betas=(0.9, 0.98),
+            eps=1e-9,
+        ),
+        args.embedding_size,
+        4000,
     )
     hyp_optimizer = RSGD(
         [p for p in model.parameters() if isinstance(p, znn.Parameter)],
@@ -53,6 +61,8 @@ if __name__ == "__main__":
     for i in range(args.num_iterations):
 
         euc_optimizer.zero_grad()
+        euc_optimizer.update_learning_rate()
+
         hyp_optimizer.zero_grad()
 
         model.train()
@@ -66,7 +76,7 @@ if __name__ == "__main__":
 
         model.eval()
 
-        if i % 100 == 0:
+        if i % 10 == 0:
             input, target = loader.next_batch(args.batch_size, 200, "valid", device)
             with t.no_grad():
                 valid_bpc = model(input, target, 2).mean()
