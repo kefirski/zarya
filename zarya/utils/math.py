@@ -32,3 +32,18 @@ class Asinh(Function):
     def backward(ctx, grad_output):
         x, = ctx.saved_tensors
         return grad_output / x if ctx.needs_input_grad[0] else None
+
+
+class Acosh(Function):
+    eps = 1e-5
+
+    @staticmethod
+    def forward(ctx, x):
+        _x = torch.sqrt(torch.clamp(x ** 2 - 1, min=Acosh.eps))
+        ctx.save_for_backward(_x)
+        return torch.log(torch.clamp(x + _x, min=Acosh.eps))
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        _x, = ctx.saved_tensors
+        return grad_output / _x if ctx.need_input_grad[0] else None
