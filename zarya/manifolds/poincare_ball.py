@@ -23,6 +23,12 @@ class PoincareBall(Manifold):
             exp = self.zero_exp(x, dim=dim)
             x.copy_(exp)
 
+    def renorm_(self, x, dim=-1):
+        *_, d = x.shape
+        x = x.view(-1, d)
+        with torch.no_grad():
+            x.renorm_(2, 0, 1 - self.eps)
+
     def conf_factor(self, x=None, dim=-1, keepdim=False):
         return (
             torch.clamp(
