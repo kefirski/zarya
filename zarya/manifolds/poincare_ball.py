@@ -3,7 +3,7 @@ from math import sqrt
 import torch
 
 from zarya.manifolds import Manifold
-from zarya.utils import atanh, asinh
+from zarya.utils import atanh, asinh, acosh
 
 
 class PoincareBall(Manifold):
@@ -140,6 +140,23 @@ class PoincareBall(Manifold):
         return (self.conf_factor(p) * a_norm / self.sqrt_c) * asinh(
             (2 * self.sqrt_c * torch.sum(_sum * a, dim=-1)) / denominator
         )
+
+    def distance(self, x, y, dim=-1, keepdim=False):
+        """Poincare Manifod Distance
+        Args:
+            x (torch.Tensor): x input tensor.
+            y (torch.Tensor): y input tensor.
+            dim (int, optional): Dimension used. Defaults to -1.
+            keepdim (bool, optional): Whether to keep dims. Defaults to False.
+        Returns:
+            torch.Tensor: Poincare distance.
+        """
+        alpha = torch.norm(x, dim=dim, keepdim=keepdim) ** 2
+        beta = torch.norm(y, dim=dim, keepdim=keepdim) ** 2
+        gamma = torch.norm(x - y, dim=dim, keepdim=keepdim) ** 2
+        _val = 1 + 2 * gamma / (alpha * beta)
+        _clamped = torch.clamp(_val, min=1)
+        return acosh(_clamped)
 
     def clamp_inside_(self, value, _from, _to):
         indices = (value > _from) * (value < _to)
