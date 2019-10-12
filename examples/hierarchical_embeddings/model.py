@@ -4,7 +4,7 @@ from torch import nn
 from zarya import nn as znn
 
 
-class HieracicalEmbeddings(nn.Module):
+class HierarchicalEmbeddings(nn.Module):
     """Hierarchical Embedding Model.
 
     Args:
@@ -42,7 +42,7 @@ class HieracicalEmbeddings(nn.Module):
 
         return self.objective(distances, target)
 
-    def dump(self, filename=None):
+    def dump(self):
         """Detach and return embedding weights.
 
         Returns:

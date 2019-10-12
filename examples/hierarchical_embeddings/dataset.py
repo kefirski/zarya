@@ -51,6 +51,10 @@ class HierarchicalDataset(Dataset):
         negative = random.choice(self.negative)
         return pred, succ, negative
 
+    @property
+    def vocab_size(self):
+        return len(self.w2i)
+
     def export_vocab(self, filename):
         vocab = np.array(self.i2w)
         np.save(filename, vocab)
