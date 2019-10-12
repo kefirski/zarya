@@ -41,6 +41,12 @@ class Manifold:
     def parallel_transport(self, x, dim=-1, _from=None, _to=None):
         raise NotImplementedError
 
+    def distance(self, x, y, p, dim=-1, keepdim=False):
+        r"""[summary]
+        Distance function
+        """
+        raise NotImplementedError
+
     def linear(self, x, m):
         r"""
         Fused composition of zero_log mapping, linear mapping and zero_exp mapping
