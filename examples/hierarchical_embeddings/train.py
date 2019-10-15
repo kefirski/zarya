@@ -4,15 +4,18 @@ import logging
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from dataset import HierarchicalDataset
 from model import HierarchicalEmbeddings
+from utils import setup_logging
 from zarya.manifolds import PoincareBall
 from zarya.optim import RSGD
 
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
+    setup_logging()
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=str)
     parser.add_argument("--out", type=str)
@@ -28,6 +31,7 @@ if __name__ == "__main__":
 
     dataset = HierarchicalDataset(args.source, args.negatives, closure=args.closure)
     dataloader = DataLoader(dataset, args.bs, True, collate_fn=dataset.collate)
+    pbar = tqdm(total=len(dataloader) * args.epochs, desc="Trainig")
 
     manifold = PoincareBall()
     model = HierarchicalEmbeddings(dataset.vocab_size, args.emb, manifold).to(device)
@@ -47,6 +51,7 @@ if __name__ == "__main__":
                 # model.renorm()
 
                 cum_loss += loss.item()
+                pbar.update()
 
             logger.info(f"Epoch {epoch} loss: {cum_loss / len(dataloader)}")
     except KeyboardInterrupt:

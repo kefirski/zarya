@@ -1,2 +1,4 @@
 matplotlib
 scipy
+yaml
+tqdm
