@@ -1,6 +1,7 @@
 import csv
 import logging
 import random
+import operator
 
 import numpy as np
 import torch
@@ -61,9 +62,11 @@ class HierarchicalDataset(Dataset):
 
     @classmethod
     def iter_data(cls, source_file: str):
+        strip = operator.methodcaller("strip")
         with open(source_file) as file:
             reader = csv.reader(file)
-            yield from reader
+            for sample in reader:
+                yield list(map(strip, sample))
 
     @staticmethod
     def transitive_closure(data, size):

@@ -20,7 +20,7 @@ class HierarchicalEmbeddings(nn.Module):
         self.embedding = znn.Embedding(vocab_size, emb_size, manifold)
         self.objective = nn.CrossEntropyLoss()
 
-    def forward(self, succ, pred, neg):
+    def forward(self, pred, succ, neg):
         """Calculate hierarchy embedding loss value.
 
         Args:

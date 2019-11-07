@@ -159,8 +159,8 @@ class PoincareBall(Manifold):
         Returns:
             torch.Tensor: poincare distance.
         """
-        alpha = torch.norm(x, p, dim, keepdim) ** 2
-        beta = torch.norm(y, p, dim, keepdim) ** 2
+        alpha = 1 - torch.norm(x, p, dim, keepdim) ** 2
+        beta = 1 - torch.norm(y, p, dim, keepdim) ** 2
         gamma = torch.norm(x - y, p, dim, keepdim) ** 2
         _val = 1 + 2 * gamma / (alpha * beta)
         _clamped = torch.clamp(_val, min=1)
