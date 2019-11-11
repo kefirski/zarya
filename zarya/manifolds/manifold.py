@@ -5,6 +5,9 @@ class Manifold:
     def conf_factor(self, x=None, dim=-1, keepdim=False):
         raise NotImplementedError
 
+    def grad_proj(self, x=None, v=None, dim=-1):
+        raise NotImplementedError
+
     def add(self, x, y, dim=-1):
         raise NotImplementedError
 
@@ -41,7 +44,7 @@ class Manifold:
     def parallel_transport(self, x, dim=-1, _from=None, _to=None):
         raise NotImplementedError
 
-    def distance(self, x, y, p, dim=-1, keepdim=False):
+    def distance(self, x, y, dim=-1, keepdim=False, **kwargs):
         r"""[summary]
         Distance function
         """
