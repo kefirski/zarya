@@ -5,6 +5,9 @@ import torch
 
 
 class LorentzManifold(Manifold):
+    def __init__(self, eps=1e-5):
+        self.eps = eps
+
     def __repr__(self):
         return "Lorentz Manifold"
 
@@ -108,3 +111,18 @@ class LorentzManifold(Manifold):
         g.narrow(dim, 0, 1).mul_(-1)
         h = p_grad * g
         return h + self.dot(p, h, dim=dim, keepdim=True) * p
+
+    def to_poincare(self, x: torch.Tensor, dim=-1) -> torch.Tensor:
+        """Map from Lorentz manifold to Poincare model.
+
+        Args:
+            x (torch.Tensor): input tensor.
+            dim (int, optional): dimension used. Defaults to -1.
+
+        Returns:
+            torch.Tensor: tensor in Poincare model.
+        """
+        dim_size = x.size(dim)
+        x0 = x.narrow(dim, 0, 1)
+        x_ = x.narrow(dim, 1, dim_size - 1)
+        return x_ / (x0 + 1)

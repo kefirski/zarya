@@ -33,6 +33,7 @@ def test_distance(x, y):
 
 @pytest.mark.parametrize("x,v", zip(generate_input(4, 5), generate_input(4, 5)))
 def test_exp(x, v):
+    manifold.renorm_(x)
     exp = manifold.exp(x, v)
     assert exp.shape == (4, 5)
     assert not torch.isnan(exp).any()
@@ -43,3 +44,10 @@ def test_grad_proj(p, p_grad):
     grad_proj = manifold.grad_proj(p, p_grad)
     assert grad_proj.shape == (4, 5)
     assert not torch.isnan(grad_proj).any()
+
+
+@pytest.mark.parametrize("t", generate_input(4, 5))
+def test_to_poincare(t):
+    manifold.renorm_(t)
+    poincare_t = manifold.to_poincare(t)
+    assert all(poincare_t.norm(dim=-1) <= 1)
