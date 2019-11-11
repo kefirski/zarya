@@ -93,6 +93,7 @@ class LorentzManifold(Manifold):
             torch.Tensor: output tensor.
         """
         v_norm = self.norm(v, dim, keepdim=True)
+        v_norm = torch.clamp(v_norm, min=self.eps)
         return torch.cosh(v_norm) * x + torch.sinh(v_norm) * v / v_norm
 
     def grad_proj(self, p: torch.Tensor, p_grad: torch.Tensor, dim=-1) -> torch.Tensor:

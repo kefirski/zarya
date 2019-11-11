@@ -50,4 +50,5 @@ def test_grad_proj(p, p_grad):
 def test_to_poincare(t):
     manifold.renorm_(t)
     poincare_t = manifold.to_poincare(t)
+    assert poincare_t.shape == (4, 4)
     assert all(poincare_t.norm(dim=-1) <= 1)
