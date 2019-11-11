@@ -1,4 +1,20 @@
+import torch
+
+
 class Manifold:
+    def clamp_inside_(self, value: torch.Tensor, _from: float, _to: float):
+        """Clamp values to be less than `_from` and more than `_to`.
+
+        Args:
+            value (torch.Tensor): tensor value.
+            _from (float): from value.
+            _to (float): to value.
+        """
+        eps = 1e-5
+        indices = (value > _from) * (value < _to)
+        if indices.any():
+            value[indices] = eps * torch.sign(value[indices])
+
     def proj_(self, x, dim=-1):
         raise NotImplementedError
 

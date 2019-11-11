@@ -169,11 +169,6 @@ class PoincareBall(Manifold):
         _clamped = torch.clamp(_val, min=1)
         return acosh(_clamped)
 
-    def clamp_inside_(self, value, _from, _to):
-        indices = (value > _from) * (value < _to)
-        if indices.any():
-            value[indices] = self.eps * torch.sign(value[indices])
-
     def __repr__(self):
         return "Poincare Ball Manifold, c = {}".format(self.c)
 
