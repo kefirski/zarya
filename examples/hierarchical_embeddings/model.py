@@ -51,4 +51,5 @@ class HierarchicalEmbeddings(nn.Module):
         return self.embedding.weight.detach().cpu()
 
     def renorm(self):
-        self.mf.renorm(self.embedding.weight)
+        with torch.no_grad():
+            self.mf.renorm_(self.embedding.weight)
