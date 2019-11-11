@@ -7,10 +7,11 @@ class RSGD(optim.SGD):
     r"""Implements Riemannian stochastic gradient descent.
     """
 
-    def __init__(self, params, manifold, lr=required):
+    def __init__(self, params, manifold, lr=required, retraction=True):
         super(RSGD, self).__init__(params, lr)
 
         self.mf = manifold
+        self.retraction = retraction
 
     def step(self):
         """Performs a single optimization step.
@@ -24,5 +25,6 @@ class RSGD(optim.SGD):
                     if p.grad is None:
                         continue
 
-                    lambda_square = self.mf.conf_factor(p, keepdim=True) ** 2
-                    p.data.copy_(self.mf.exp(p, -lr * p.grad.data / lambda_square))
+                    step = -lr * self.mf.grad_proj(p, p.grad.data)
+                    update = p + step if self.retraction else self.mf.exp(p, step)
+                    p.data.copy_(update)
