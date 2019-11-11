@@ -10,7 +10,7 @@ class LorentzManifold(Manifold):
 
     def proj_(self, x: torch.Tensor, dim=-1):
         with torch.no_grad():
-            self.renorm_(x, dim=-1)
+            self.renorm_(x, dim=dim)
 
     def dot(
         self, x: torch.Tensor, y: torch.Tensor, dim=-1, keepdim=False
@@ -27,7 +27,7 @@ class LorentzManifold(Manifold):
             torch.Tensor: dot product value.
         """
         dim_size = x.size(dim)
-        neg = x.narrow(dim, 0, 1) * y.narrow(dim, 0, 1)
+        neg = -x.narrow(dim, 0, 1) * y.narrow(dim, 0, 1)
         mult = x.narrow(dim, 1, dim_size - 1) * y.narrow(dim, 1, dim_size - 1)
         pos = torch.sum(mult, dim, keepdim=True)
         dot = neg + pos
@@ -58,7 +58,7 @@ class LorentzManifold(Manifold):
         dim_size = x.size(dim)
         with torch.no_grad():
             x_ = x.narrow(dim, 1, dim_size - 1)
-            n_ = torch.sqrt(1 + x_.norm(dim=dim, keepdim=True))
+            n_ = torch.sqrt(1 + x_.norm(dim=dim, keepdim=True) ** 2)
             x.narrow(dim, 0, 1).copy_(n_)
 
     def distance(
@@ -90,7 +90,6 @@ class LorentzManifold(Manifold):
             torch.Tensor: output tensor.
         """
         v_norm = self.norm(v, dim, keepdim=True)
-        v_norm = torch.clamp(v_norm, min=1e-5)
         return torch.cosh(v_norm) * x + torch.sinh(v_norm) * v / v_norm
 
     def grad_proj(self, p: torch.Tensor, p_grad: torch.Tensor, dim=-1) -> torch.Tensor:
