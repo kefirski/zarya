@@ -39,6 +39,9 @@ class PoincareBall(Manifold):
             else 2.0
         )
 
+    def grad_proj(self, p, p_grad, dim=-1):
+        return p_grad / (self.conf_factor(p, dim, keepdim=True) ** 2)
+
     def add(self, x, y, dim=-1):
 
         c = self.c
