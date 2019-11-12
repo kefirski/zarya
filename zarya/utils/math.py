@@ -14,7 +14,7 @@ class Atanh(Function):
 
     @staticmethod
     def backward(ctx, grad_output):
-        x, = ctx.saved_tensors
+        (x,) = ctx.saved_tensors
         return grad_output / (1 - (x ** 2)) if ctx.needs_input_grad[0] else None
 
 
@@ -30,7 +30,7 @@ class Asinh(Function):
 
     @staticmethod
     def backward(ctx, grad_output):
-        x, = ctx.saved_tensors
+        (x,) = ctx.saved_tensors
         return grad_output / x if ctx.needs_input_grad[0] else None
 
 
@@ -45,5 +45,5 @@ class Acosh(Function):
 
     @staticmethod
     def backward(ctx, grad_output):
-        _x, = ctx.saved_tensors
+        (_x,) = ctx.saved_tensors
         return grad_output / _x if ctx.needs_input_grad[0] else None
