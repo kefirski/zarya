@@ -33,7 +33,9 @@ if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    dataset = HierarchicalDataset(args.source, args.negatives, closure=args.closure)
+    dataset = HierarchicalDataset(
+        args.source, args.vocab, args.negatives, closure=args.closure
+    )
     dataloader = DataLoader(dataset, args.bs, True, collate_fn=dataset.collate)
     pbar = tqdm(total=len(dataloader) * args.epochs, desc="Trainig")
 
