@@ -3,6 +3,8 @@ import logging
 import random
 import operator
 
+from collections import Counter
+
 import numpy as np
 import torch
 from scipy.sparse import csgraph, csr_matrix
@@ -17,6 +19,7 @@ class HierarchicalDataset(Dataset):
     Args:
         source_file (str): Source filename with hierarchy pairs, separated
             by comma.
+        vocab_size (int, optional): Maximum vocabulary size. Defautls to 30000.
         negatives (int, optional): Number of negative samples. Defaults to 10.
         negative_bucket (int, optional): Temporary negative sample dump size.
             Defaults to 20000.
@@ -24,15 +27,28 @@ class HierarchicalDataset(Dataset):
             hierarchy. Defaults to False.
     """
 
-    def __init__(self, source_file, negatives=10, negative_bucket=20000, closure=False):
+    def __init__(
+        self,
+        source_file,
+        vocab_size=30000,
+        negatives=10,
+        negative_bucket=20000,
+        closure=False,
+    ):
         logger.info(f"Start processing `{source_file}` hierarchy.")
 
-        unique_tokens = set(t for p in self.iter_data(source_file) for t in p)
-        self.i2w = list(unique_tokens)
+        counter = Counter(t for p in self.iter_data(source_file) for t in p)
+        self.i2w, *counts = zip(*counter.most_common(vocab_size))
         self.w2i = {w: i for i, w in enumerate(self.i2w)}
 
+        unique_tokens = set(self.i2w)
+
         self.data = np.array(
-            [(self.w2i[p], self.w2i[s]) for p, s in self.iter_data(source_file)]
+            [
+                (self.w2i[p], self.w2i[s])
+                for p, s in self.iter_data(source_file)
+                if p in unique_tokens and s in unique_tokens
+            ]
         )
 
         if closure:

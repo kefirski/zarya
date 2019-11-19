@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=str)
     parser.add_argument("--out", type=str)
+    parser.add_argument("--vocab", type=int, default=30000)
     parser.add_argument("--emb", type=int, default=2)
     parser.add_argument("--bs", type=int, default=32)
     parser.add_argument("--lr", type=float, default=1.0)
