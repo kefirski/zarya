@@ -7,7 +7,7 @@ class RSGD(optim.SGD):
     r"""Implements Riemannian stochastic gradient descent.
     """
 
-    def __init__(self, params, manifold, lr=required, retraction=True):
+    def __init__(self, params, manifold, lr=required, retraction=False):
         super(RSGD, self).__init__(params, lr)
 
         self.mf = manifold

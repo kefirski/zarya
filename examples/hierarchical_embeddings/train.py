@@ -31,6 +31,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--manifold", choices=["poincare", "lorentz"], default="poincare"
     )
+    parser.add_argument("--retraction", action="store_true")
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -46,7 +47,7 @@ if __name__ == "__main__":
 
     manifold = PoincareBall() if args.manifold == "poincare" else LorentzManifold()
     model = HierarchicalEmbeddings(dataset.vocab_size, args.emb, manifold).to(device)
-    optim = RSGD(model.parameters(), manifold, args.lr)
+    optim = RSGD(model.parameters(), manifold, args.lr, args.retraction)
 
     try:
         for epoch in range(1, args.epochs + 1):
