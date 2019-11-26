@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from dataset import HierarchicalDataset
-from model import HierarchicalEmbeddings
+from model import HierarchicalEmbeddings, EntailmentConesEmbeddings
 from utils import setup_logging
 from zarya.manifolds import LorentzManifold, PoincareBall
 from zarya.optim import RSGD
@@ -28,6 +28,7 @@ if __name__ == "__main__":
     parser.add_argument("--negatives", type=int, default=10)
     parser.add_argument("--closure", action="store_true")
     parser.add_argument("--threads", type=int, default=multiprocessing.cpu_count())
+    parser.add_argument("--cones", action="store_true")
     parser.add_argument(
         "--manifold", choices=["poincare", "lorentz"], default="poincare"
     )
@@ -46,7 +47,11 @@ if __name__ == "__main__":
     pbar = tqdm(total=len(dataloader) * args.epochs, desc="Trainig")
 
     manifold = PoincareBall() if args.manifold == "poincare" else LorentzManifold()
-    model = HierarchicalEmbeddings(dataset.vocab_size, args.emb, manifold).to(device)
+    if args.cones:
+        model = EntailmentConesEmbeddings(dataset.vocab_size, args.emb, manifold)
+    else:
+        model = HierarchicalEmbeddings(dataset.vocab_size, args.emb, manifold)
+    model = model.to(device)
     optim = RSGD(model.parameters(), manifold, args.lr, args.retraction)
 
     try:
