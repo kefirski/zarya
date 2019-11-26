@@ -166,3 +166,15 @@ class EntailmentConesEmbeddings(nn.Module):
         )
         loss = torch.cat((e_pos, e_neg), dim=1).mean()
         return loss
+
+    def dump(self):
+        """Detach and return embeddings weights.
+
+        Returns:
+            torch.Tensor: Embedding weights.
+        """
+        return self.embeddings.weight.detach().cpu()
+
+    def renorm(self):
+        with torch.no_grad():
+            self.mf.renorm_(self.embeddings.weight)
