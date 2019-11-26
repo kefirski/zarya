@@ -32,7 +32,7 @@ class Word2VecDataset(Dataset):
 
         # Check preprocessed data dump existence:
         if os.path.exists(dump_filename + ".npy"):
-            logger.info(f"Loading preprocessed data dump `{dump_filename}`.")
+            logger.info(f"Loading preprocessed data dump `{dump_filename}.npy`.")
 
             self.i2w, self.keep_probs, self.neg_probs, self.data = self.load(
                 dump_filename + ".npy"
