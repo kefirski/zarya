@@ -1,6 +1,7 @@
 import argparse
 import logging
 import multiprocessing
+from datetime import datetime
 
 import numpy as np
 import torch
@@ -8,7 +9,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from dataset import HierarchicalDataset
-from model import HierarchicalEmbeddings, EntailmentConesEmbeddings
+from model import EntailmentConesEmbeddings, HierarchicalEmbeddings
 from utils import setup_logging
 from zarya.manifolds import LorentzManifold, PoincareBall
 from zarya.optim import RSGD
@@ -47,11 +48,8 @@ if __name__ == "__main__":
     pbar = tqdm(total=len(dataloader) * args.epochs, desc="Trainig")
 
     manifold = PoincareBall() if args.manifold == "poincare" else LorentzManifold()
-    if args.cones:
-        model = EntailmentConesEmbeddings(dataset.vocab_size, args.emb, manifold)
-    else:
-        model = HierarchicalEmbeddings(dataset.vocab_size, args.emb, manifold)
-    model = model.to(device)
+    model_cls = EntailmentConesEmbeddings if args.cones else HierarchicalEmbeddings
+    model = model_cls(dataset.vocab_size, args.emb, manifold).to(device)
     optim = RSGD(model.parameters(), manifold, args.lr, args.retraction)
 
     try:
@@ -75,5 +73,6 @@ if __name__ == "__main__":
 
     vocab = np.array(dataset.i2w)
     weights = np.array(model.dump())
+    time = datetime.now().strftime("%y%m%d_%H%M%S")
     np.save(f"{args.out}_vocab", vocab)
-    np.save(args.out, weights)
+    np.save(f"{args.out}_{time}", weights)
