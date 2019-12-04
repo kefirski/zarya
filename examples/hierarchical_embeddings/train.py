@@ -35,9 +35,12 @@ if __name__ == "__main__":
         "--manifold", choices=["poincare", "lorentz"], default="poincare"
     )
     parser.add_argument("--retraction", action="store_true")
+    parser.add_argument("--no-cuda", action="store_true")
     args = parser.parse_args()
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device(
+        "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu"
+    )
     torch.set_num_threads(args.threads)
 
     dataset = HierarchicalDataset(
