@@ -38,10 +38,10 @@ class HierarchicalEmbeddings(nn.Module):
         succ = succ.view(-1, 1)
         pred = pred.view(-1, 1)
 
-        union = torch.cat((succ, neg), dim=-1)
-        pred_emb = self.embeddings(pred)
+        union = torch.cat((pred, neg), dim=-1)
+        succ_emb = self.embeddings(succ)
         union_emb = self.embeddings(union)
-        distances = -self.mf.distance(pred_emb, union_emb)
+        distances = -self.mf.distance(succ_emb, union_emb)
 
         return self.objective(distances, target)
 
