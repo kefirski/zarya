@@ -5,6 +5,7 @@ from datetime import datetime
 
 import numpy as np
 import torch
+from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -51,6 +52,8 @@ if __name__ == "__main__":
     model_cls = EntailmentConesEmbeddings if args.cones else HierarchicalEmbeddings
     model = model_cls(dataset.vocab_size, args.emb, manifold).to(device)
     optim = RSGD(model.parameters(), manifold, args.lr, args.retraction)
+    # Burn Up scheduler
+    lr_scheduler = LambdaLR(optim, lambda epoch: 0.1 if epoch < 10 else 1)
 
     try:
         for epoch in range(1, args.epochs + 1):
@@ -67,6 +70,7 @@ if __name__ == "__main__":
                 cum_loss += loss.item()
                 pbar.update()
 
+            lr_scheduler.step()
             logger.info(f"Epoch {epoch} loss: {cum_loss / len(dataloader)}")
     except KeyboardInterrupt:
         logger.warning("Force stopping")
